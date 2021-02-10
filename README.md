@@ -33,3 +33,4 @@ vim
 
 - Bring in 'go to' mappings (for jumping to config, to mappings, and to plugin definition)
 - Add scaffolding command (for creating default folders and sample config files, where non-existent)
+- Record video demo and take over world
