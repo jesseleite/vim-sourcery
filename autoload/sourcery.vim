@@ -36,6 +36,7 @@ function! sourcery#source()
   call sourcery#source_file('mappings.vim')
   call sourcery#source_folder('local-config')
   call sourcery#source_folder('plugin-config')
+  call sourcery#autosource_tracked_files()
 endfunction
 
 " Source a specific file
@@ -43,16 +44,19 @@ function! sourcery#source_file(file)
   let file = sourcery#vim_dotfiles_path(a:file)
   if filereadable(file)
     execute 'source' file
+    call s:track(file)
   endif
 endfunction
 
 " Source everything in a specific folder
 function! sourcery#source_folder(folder)
-  for config_file in split(glob(sourcery#vim_dotfiles_path(a:folder . '/*')), '\n')
-    if filereadable(config_file)
-      execute 'source' config_file
+  let folder = sourcery#vim_dotfiles_path(a:folder) . '/*'
+  for file in split(glob(folder, '\n'))
+    if filereadable(file)
+      execute 'source' file
     endif
   endfor
+  call s:track(folder)
 endfunction
 
 
@@ -64,12 +68,22 @@ endfunction
 if empty(get(g:, 'sourcery#autosource_paths'))
   let g:sourcery#autosource_paths = [
     \ $MYVIMRC,
-    \ sourcery#vim_dotfiles_path('*.vim')
+    \ resolve($MYVIMRC),
+    \ sourcery#vim_dotfiles_path('plugins.vim'),
     \ ]
 endif
 
+" Track path for autosourcing
+function! s:track(path)
+  if index(g:sourcery#autosource_paths, a:path) < 0
+    call add(g:sourcery#autosource_paths, a:path)
+  endif
+endfunction
+
 " Autosource all vim configs
-augroup sourcery_autosource
-  autocmd!
-  execute 'autocmd BufWritePost' join(g:sourcery#autosource_paths, ',') 'nested source' $MYVIMRC
-augroup END
+function! sourcery#autosource_tracked_files()
+  augroup sourcery_autosource
+    autocmd!
+    execute 'autocmd BufWritePost' join(g:sourcery#autosource_paths, ',') 'nested source' $MYVIMRC
+  augroup END
+endfunction
