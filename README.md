@@ -69,10 +69,10 @@ Coming soon!
 5. Add the following to your `mappings.vim` file:
 
     ```vim
-    function! sourcery#vimrc_mappings()
-      nnoremap <buffer><nowait> <leader>gc :SourceryGoToRelatedConfig<CR>
-      nnoremap <buffer><nowait> <leader>gm :SourceryGoToRelatedMappings<CR>
-      nnoremap <buffer><nowait> <leader>gp :SourceryGoToRelatedPluginDefinition<CR>
+    function! VimrcLocalMappings()
+      nmap <buffer> <leader>gc <Plug>SourceryGoToRelatedConfig
+      nmap <buffer> <leader>gm <Plug>SourceryGoToRelatedMappings
+      nmap <buffer> <leader>gp <Plug>SourceryGoToRelatedPluginDefinition
     endfunction
     ```
 
@@ -100,5 +100,5 @@ Coming soon!
 
 ## TODO
 
-- Add mappings
+- Document jumping between files, annotations, explicit annotation bindings, etc.
 - Record quick video demo

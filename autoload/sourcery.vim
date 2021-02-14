@@ -3,12 +3,12 @@
 " ------------------------------------------------------------------------------
 
 " Define vim dotfiles path (relative to actual .vimrc file, not symlink)
-if empty(get(g:, 'sourcery#vim_dotfiles_path'))
+if exists('g:sourcery#vim_dotfiles_path') == 0
   let g:sourcery#vim_dotfiles_path = fnamemodify(resolve($MYVIMRC), ':h')
 endif
 
 " Define system vimfiles path
-if empty(get(g:, 'sourcery#system_vimfiles_path'))
+if exists('g:sourcery#system_vimfiles_path') == 0
   if has('win32')
     let g:sourcery#system_vimfiles_path = $HOME . '/vimfiles'
   else
@@ -37,6 +37,7 @@ function! sourcery#source()
   call sourcery#source_folder('local-config')
   call sourcery#source_folder('plugin-config')
   call sourcery#autosource_tracked_files()
+  call sourcery#register_mappings()
 endfunction
 
 " Source a specific file
@@ -65,7 +66,7 @@ endfunction
 " ------------------------------------------------------------------------------
 
 " Define autosource paths
-if empty(get(g:, 'sourcery#autosource_paths'))
+if exists('g:sourcery#autosource_paths') == 0
   let g:sourcery#autosource_paths = [
     \ $MYVIMRC,
     \ resolve($MYVIMRC),
@@ -93,12 +94,15 @@ endfunction
 " # Scaffolding
 " ------------------------------------------------------------------------------
 
+" Base stub path
 let s:stub_path = expand('<sfile>:h:h') . '/stub'
 
+" Get path relative to stubs folder
 function! s:stub_path(path)
   return s:stub_path . '/' . a:path
 endfunction
 
+" List stub files
 function! s:stub_files()
   let files = []
   for file in globpath(s:stub_path, '**', 0, 1)
@@ -109,6 +113,7 @@ function! s:stub_files()
   return files
 endfunction
 
+" Scaffold stub file
 function! s:scaffold_file(file)
   let stub_file = s:stub_path(a:file)
   let new_file = sourcery#vim_dotfiles_path(a:file)
@@ -122,6 +127,7 @@ function! s:scaffold_file(file)
   endif
 endfunction
 
+" Scaffold all stub files
 function! sourcery#scaffold()
   let choice = confirm('Scaffold vim configuration to [' . expand(g:sourcery#vim_dotfiles_path) . ']?', "&Yes\n&No")
   if choice == 1
@@ -136,5 +142,148 @@ function! sourcery#scaffold()
     echohl None
     echo 'Please define your desired vim dotfiles path and re-run `:SourceryScaffold`.'
     echo "ie) let g:sourcery#vim_dotfiles_path = '~/.dotfiles/vim'"
+  endif
+endfunction
+
+
+" ------------------------------------------------------------------------------
+" # Jumping
+" ------------------------------------------------------------------------------
+
+" Define plugin definition regex (supports Plug and Vundle by default)
+if exists('g:sourcery#plugin_definition_regex') == 0
+  let g:sourcery#plugin_definition_regex = escape("(Plug|Plugin).*['\"]", "(|)'")
+endif
+
+" Define ignored prefixes in plugin definitions
+if exists('g:sourcery#plugin_definition_ignored_prefixes') == 0
+  let g:sourcery#plugin_definition_ignored_prefixes = [
+    \ 'vim-',
+    \ 'nvim-',
+    \ ]
+endif
+
+" Define ignored suffixes in plugin definitions
+if exists('g:sourcery#plugin_definition_ignored_suffixes') == 0
+  let g:sourcery#plugin_definition_ignored_suffixes = [
+    \ '-vim',
+    \ '-nvim',
+    \ '.vim',
+    \ '.nvim',
+    \ ]
+endif
+
+" Go to related plugin definition
+function! sourcery#go_to_related_plugin_definition()
+  if match(getline('.'), "Plug '") > -1
+    echo 'Already in plugin definitions.'
+  endif
+  let ref = s:get_ref()
+  silent execute 'edit ' . sourcery#vim_dotfiles_path('plugins.vim')
+  normal gg
+  let query = get(g:explicit_annotation_bindings, ref['slug'], ref['slug'])
+  let found = search("/.*" . query . ".*'\\c")
+  if found == 0
+    echo 'Plugin definition not found.'
+  endif
+endfunction
+
+" Go to related config
+function! sourcery#go_to_related_config()
+  if match(getline('.'), "Plug '") == -1 && (expand('%:t') == 'plugins.vim' || match(expand('%:h:t'), 'config') > 0)
+    echo 'Already in config.'
+    return
+  endif
+  let ref = s:get_ref()
+  let path = sourcery#vim_dotfiles_path(ref['type'] . '-config/' . ref['slug'] . '.vim')
+  if filereadable(path)
+    silent execute 'edit ' . path
+  elseif ref['type'] == 'plugin'
+    silent execute 'edit ' . sourcery#vim_dotfiles_path('plugins.vim')
+    call s:go_to_ref(ref)
+  elseif ref['type'] == 'local'
+    silent execute 'edit ' . sourcery#vim_dotfiles_path('vimrc')
+    call s:go_to_ref(ref)
+  else
+    echo 'Ref not found.'
+  endif
+endfunction
+
+" Go to related mappings
+function! sourcery#go_to_related_mappings()
+  if expand('%:t') == 'mappings.vim'
+    echo 'Already in mappings.'
+    return
+  endif
+  let ref = s:get_ref()
+  silent execute 'edit ' sourcery#vim_dotfiles_path('mappings.vim')
+  call s:go_to_ref(ref)
+endfunction
+
+" Register vimrc local mappings
+function! sourcery#register_mappings()
+  if exists('*VimrcLocalMappings')
+    augroup sourcery_mappings
+      autocmd!
+      execute 'autocmd BufReadPost ' . join(g:sourcery#autosource_paths, ',') . ' call VimrcLocalMappings()'
+    augroup END
+  endif
+endfunction
+
+function! s:get_ref()
+  if expand('%:t') == 'plugins.vim' && match(getline('.'), "Plug '") > -1
+    return s:get_ref_from_plug_definition()
+  elseif expand('%:t') == 'plugins.vim' || expand('%:t') == 'mappings.vim'
+    return s:get_ref_from_annotation()
+  else
+    return s:get_ref_for_current_config_file()
+  endif
+endfunction
+
+function! s:get_ref_from_annotation()
+  let line = line('.')
+  normal {
+  let pattern = '" \(.*\): \(.*\)'
+  call search(pattern, '', line + 3)
+  let ref = matchlist(getline('.'), pattern)
+  execute 'normal ' . line . 'G'
+  if empty(ref)
+    return {'type': 'n/a', 'slug': 'n/a'}
+  endif
+  return {'type': tolower(ref[1]), 'slug': ref[2]}
+endfunction
+
+function! s:get_ref_for_current_config_file()
+  let ref = matchlist(expand('%:p:r'), '\([^/]*\)-config/\([^/]*\)$')
+  return {'type': tolower(ref[1]), 'slug': ref[2]}
+endfunction
+
+function! s:get_ref_from_plug_definition()
+  let matched = matchlist(getline('.'), "/\\([^'\"]*\\)")[1]
+  let fallback = matched
+  for ignored in g:sourcery#plugin_definition_ignored_prefixes
+    let fallback = substitute(fallback, '^' . escape(ignored, '.-'), '', '')
+  endfor
+  for ignored in g:sourcery#plugin_definition_ignored_suffixes
+    let fallback = substitute(fallback, escape(ignored, '.-') . '$', '', '')
+  endfor
+  return {
+    \ 'type': 'plugin',
+    \ 'slug': get(FlipDictionary(g:explicit_annotation_bindings), matched, fallback)
+    \ }
+endfunction
+
+function! s:build_annotation_for_ref(ref)
+  return a:ref['type'] . ': ' . a:ref['slug']
+endfunction
+
+function! s:go_to_ref(ref)
+  let current_ref = s:get_ref_from_annotation()
+  if current_ref == a:ref
+    return
+  endif
+  let found_ref = search(s:build_annotation_for_ref(a:ref) . '\c')
+  if found_ref == 0
+    echo 'Ref not found.'
   endif
 endfunction
