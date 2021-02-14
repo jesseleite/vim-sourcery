@@ -54,8 +54,6 @@ Coming soon!
 
 2. Run the `:SourceryScaffold` command to scaffold out the [file structure conventions](#file-structure-conventions) as displayed below.
 
-    > _**Note:** This command isn't implemented yet. Coming soon!_
-
 3. Move your plugin definitions into `plugins.vim`, if you aren't already doing this.
 
 4. Setup your `.vimrc` to source your plugins from `plugins.vim`, then let Vim Sourcery source the rest:
@@ -102,6 +100,5 @@ Coming soon!
 
 ## TODO
 
-- Finish scaffold command
 - Add mappings
 - Record quick video demo

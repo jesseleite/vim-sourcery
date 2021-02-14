@@ -87,3 +87,44 @@ function! sourcery#autosource_tracked_files()
     execute 'autocmd BufWritePost' join(g:sourcery#autosource_paths, ',') 'nested source' $MYVIMRC
   augroup END
 endfunction
+
+
+" ------------------------------------------------------------------------------
+" # Scaffolding
+" ------------------------------------------------------------------------------
+
+let s:stub_path = expand('<sfile>:h:h') . '/stub'
+
+function! s:stub_path(path)
+  return s:stub_path . '/' . a:path
+endfunction
+
+function! s:stub_files()
+  let files = []
+  for file in globpath(s:stub_path, '**', 0, 1)
+    if isdirectory(file) == 0
+      call add(files, substitute(file, s:stub_path . '/', '', ''))
+    endif
+  endfor
+  return files
+endfunction
+
+function! s:scaffold_file_if_missing(file)
+  let stub_file = s:stub_path(a:file)
+  let new_file = sourcery#vim_dotfiles_path(a:file)
+  let new_folder = fnamemodify(new_file, ':h')
+  if filereadable(new_file) == 0
+    call mkdir(new_folder, 'p')
+    call writefile(readfile(stub_file), new_file)
+    echo 'File added:' new_file
+  else
+    echo 'Already exists:' new_file
+  endif
+endfunction
+
+function! sourcery#scaffold()
+  for file in s:stub_files()
+    call s:scaffold_file_if_missing(file)
+  endfor
+  echo 'Scaffold complete!'
+endfunction
