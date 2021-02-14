@@ -18,12 +18,12 @@ endif
 
 " Get path relative to your vim dotfiles
 function! sourcery#vim_dotfiles_path(path)
-  return g:sourcery#vim_dotfiles_path . '/' . a:path
+  return expand(g:sourcery#vim_dotfiles_path . '/' . a:path)
 endfunction
 
 " Get path relative to your system vimfiles
 function! sourcery#system_vimfiles_path(path)
-  return g:sourcery#system_vimfiles_path . '/' . a:path
+  return expand(g:sourcery#system_vimfiles_path . '/' . a:path)
 endfunction
 
 
@@ -109,7 +109,7 @@ function! s:stub_files()
   return files
 endfunction
 
-function! s:scaffold_file_if_missing(file)
+function! s:scaffold_file(file)
   let stub_file = s:stub_path(a:file)
   let new_file = sourcery#vim_dotfiles_path(a:file)
   let new_folder = fnamemodify(new_file, ':h')
@@ -123,8 +123,18 @@ function! s:scaffold_file_if_missing(file)
 endfunction
 
 function! sourcery#scaffold()
-  for file in s:stub_files()
-    call s:scaffold_file_if_missing(file)
-  endfor
-  echo 'Scaffold complete!'
+  let choice = confirm('Scaffold vim configuration to [' . expand(g:sourcery#vim_dotfiles_path) . ']?', "&Yes\n&No")
+  if choice == 1
+    for file in s:stub_files()
+      call s:scaffold_file(file)
+    endfor
+    echohl
+    echo 'Scaffold complete!'
+  else
+    echohl WarningMsg
+    echo 'Scaffold cancelled!'
+    echohl None
+    echo 'Please define your desired vim dotfiles path and re-run `:SourceryScaffold`.'
+    echo "ie) let g:sourcery#vim_dotfiles_path = '~/.dotfiles/vim'"
+  endif
 endfunction
