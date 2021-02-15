@@ -269,7 +269,7 @@ function! s:get_ref_from_plug_definition()
   endfor
   return {
     \ 'type': 'plugin',
-    \ 'slug': get(FlipDictionary(g:explicit_annotation_bindings), matched, fallback)
+    \ 'slug': get(s:flip_dictionary(g:explicit_annotation_bindings), matched, fallback)
     \ }
 endfunction
 
@@ -286,4 +286,12 @@ function! s:go_to_ref(ref)
   if found_ref == 0
     echo 'Ref not found.'
   endif
+endfunction
+
+function! s:flip_dictionary(dictionary)
+  let flipped = {}
+  for [key, value] in items(a:dictionary)
+    let flipped[value] = key
+  endfor
+  return flipped
 endfunction
