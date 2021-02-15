@@ -150,6 +150,11 @@ endfunction
 " # Jumping
 " ------------------------------------------------------------------------------
 
+" Define explicit annotation bindings
+if exists('g:sourcery#explicit_annotation_bindings') == 0
+  let g:sourcery#explicit_annotation_bindings = {}
+endif
+
 " Define plugin definition regex (supports Plug and Vundle by default)
 if exists('g:sourcery#plugin_definition_regex') == 0
   let g:sourcery#plugin_definition_regex = escape("(Plug|Plugin).*['\"]", "(|)'")
@@ -181,9 +186,10 @@ function! sourcery#go_to_related_plugin_definition()
   let ref = s:get_ref()
   silent execute 'edit ' . sourcery#vim_dotfiles_path('plugins.vim')
   normal gg
-  let query = get(g:explicit_annotation_bindings, ref['slug'], ref['slug'])
+  let query = get(g:sourcery#explicit_annotation_bindings, ref['slug'], ref['slug'])
   let found = search("/.*" . query . ".*'\\c")
   if found == 0
+    execute "silent! normal! \<C-o>\<C-o>"
     echo 'Plugin definition not found.'
   endif
 endfunction
@@ -269,7 +275,7 @@ function! s:get_ref_from_plug_definition()
   endfor
   return {
     \ 'type': 'plugin',
-    \ 'slug': get(s:flip_dictionary(g:explicit_annotation_bindings), matched, fallback)
+    \ 'slug': get(s:flip_dictionary(g:sourcery#explicit_annotation_bindings), matched, fallback)
     \ }
 endfunction
 
