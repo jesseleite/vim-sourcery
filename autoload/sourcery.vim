@@ -114,12 +114,11 @@ function! s:stub_files()
 endfunction
 
 " Scaffold stub file
-function! s:scaffold_file(file)
+function! s:scaffold_file(folder, file)
   let stub_file = s:stub_path(a:file)
-  let new_file = sourcery#vim_dotfiles_path(a:file)
-  let new_folder = fnamemodify(new_file, ':h')
+  let new_file = a:folder . '/' . a:file
   if filereadable(new_file) == 0
-    call mkdir(new_folder, 'p')
+    call mkdir(a:folder, 'p')
     call writefile(readfile(stub_file), new_file)
     echo 'File added:' new_file
   else
@@ -129,10 +128,14 @@ endfunction
 
 " Scaffold all stub files
 function! sourcery#scaffold()
-  let choice = confirm('Scaffold vim configuration to [' . expand(g:sourcery#vim_dotfiles_path) . ']?', "&Yes\n&No")
+  let path = g:sourcery#vim_dotfiles_path
+  if path == $HOME
+    let path = g:sourcery#system_vimfiles_path
+  endif
+  let choice = confirm('Scaffold vim configuration to [' . expand(path) . ']?', "&Yes\n&No")
   if choice == 1
     for file in s:stub_files()
-      call s:scaffold_file(file)
+      call s:scaffold_file(path, file)
     endfor
     echohl
     echo 'Scaffold complete!'
