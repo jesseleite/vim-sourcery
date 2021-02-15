@@ -143,7 +143,7 @@ function! sourcery#scaffold()
     echohl WarningMsg
     echo 'Scaffold cancelled!'
     echohl None
-    echo 'Please define your desired vim dotfiles path and re-run `:SourceryScaffold`.'
+    echo 'Please define your desired vim dotfiles path above your call to `sourcery#source()` and re-run `:SourceryScaffold`.'
     echo "ie) let g:sourcery#vim_dotfiles_path = '~/.dotfiles/vim'"
   endif
 endfunction
