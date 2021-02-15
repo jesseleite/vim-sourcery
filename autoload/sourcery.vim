@@ -2,11 +2,6 @@
 " # Pathing
 " ------------------------------------------------------------------------------
 
-" Define vim dotfiles path (relative to actual .vimrc file, not symlink)
-if exists('g:sourcery#vim_dotfiles_path') == 0
-  let g:sourcery#vim_dotfiles_path = fnamemodify(resolve($MYVIMRC), ':h')
-endif
-
 " Define system vimfiles path
 if exists('g:sourcery#system_vimfiles_path') == 0
   if has('win32')
@@ -16,14 +11,22 @@ if exists('g:sourcery#system_vimfiles_path') == 0
   endif
 endif
 
-" Get path relative to your vim dotfiles
-function! sourcery#vim_dotfiles_path(path)
-  return expand(g:sourcery#vim_dotfiles_path . '/' . a:path)
-endfunction
+" Define desired vim dotfiles path
+if exists('g:sourcery#vim_dotfiles_path') == 0
+  let g:sourcery#vim_dotfiles_path = fnamemodify(resolve($MYVIMRC), ':h')
+  if (g:sourcery#vim_dotfiles_path == $HOME)
+    let g:sourcery#vim_dotfiles_path = g:sourcery#system_vimfiles_path
+  endif
+endif
 
 " Get path relative to your system vimfiles
 function! sourcery#system_vimfiles_path(path)
   return expand(g:sourcery#system_vimfiles_path . '/' . a:path)
+endfunction
+
+" Get path relative to your vim dotfiles
+function! sourcery#vim_dotfiles_path(path)
+  return expand(g:sourcery#vim_dotfiles_path . '/' . a:path)
 endfunction
 
 
