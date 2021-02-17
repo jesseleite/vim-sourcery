@@ -1,3 +1,9 @@
+## Warning!
+
+__*This package is still in early development, breaking changes coming!*__ 💥 💥 💥
+
+---
+
 # Vim Sourcery 🧙‍♂️
 
 A Vim plugin to help users organize their vimrc configs.
