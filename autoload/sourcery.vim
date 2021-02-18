@@ -7,7 +7,6 @@ function! sourcery#init()
   call sourcery#source_tracked_paths()
   call sourcery#register_autosourcing()
   call sourcery#register_mappings()
-  call sourcery#index_tracked_paths() " TODO: Defer until jump function is called first time?
 endfunction
 
 
@@ -229,20 +228,13 @@ endfunction
 " # Indexing
 " ------------------------------------------------------------------------------
 
-if exists('s:annotations_index') == 0
-  let s:annotations_index = []
-endif
+let s:indexed = 0
+let s:annotations_index = []
+let s:plugin_definitions_index = []
+let s:plugin_bindings = {}
 
-if exists('s:plugin_definitions_index') == 0
-  let s:plugin_definitions_index = []
-endif
-
-if exists('s:plugin_bindings') == 0
-  let s:plugin_bindings = {}
-endif
-
-function! sourcery#index_tracked_paths()
-  call s:clear_indexes()
+function! sourcery#index()
+  call s:clear_index()
   for file in s:tracked_files()
     call s:index_annotations(file)
     call s:index_plugin_definitions(file)
@@ -250,9 +242,18 @@ function! sourcery#index_tracked_paths()
   call s:merge_plugin_bindings()
 endfunction
 
-function! s:clear_indexes()
-  let s:plugin_definitions_index = []
+function! s:ensure_index()
+  if s:indexed == 1
+    return
+  endif
+  call sourcery#index()
+  let s:indexed = 1
+endfunction
+
+function! s:clear_index()
+  let s:indexed = 0
   let s:annotations_index = []
+  let s:plugin_definitions_index = []
   let s:plugin_bindings = {}
 endfunction
 
@@ -327,6 +328,7 @@ endfunction
 
 " Go to related mappings
 function! sourcery#go_to_related_mappings()
+  call s:ensure_index()
   let ref = s:get_ref()
   if ref['slug'] == expand('%:t:r') && ref['type'] == 'config'
     echo 'Cannot find mappings.'
@@ -337,6 +339,7 @@ endfunction
 
 " Go to related config
 function! sourcery#go_to_related_config()
+  call s:ensure_index()
   let ref = s:get_ref()
   let config_files = {}
   if ref['slug'] == expand('%:t:r') && ref['type'] == 'config'
@@ -355,6 +358,7 @@ endfunction
 
 " Go to related plugin definition
 function! sourcery#go_to_related_plugin_definition()
+  call s:ensure_index()
   let error = 'Cannot find plugin definition.'
   let ref = s:get_ref()
   let flipped_bindings = s:flipped_plugin_bindings()
