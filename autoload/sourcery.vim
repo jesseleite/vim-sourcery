@@ -327,14 +327,22 @@ endfunction
 
 " Go to related mappings
 function! sourcery#go_to_related_mappings()
+  let ref = s:get_ref()
+  if ref['slug'] == expand('%:t:r') && ref['type'] == 'config'
+    echo 'Cannot find mappings.'
+    return
+  endif
   call s:go_to_annotation('mappings')
 endfunction
 
 " Go to related config
-" TODO: Fix trying to go to current file when no annotation exists
 function! sourcery#go_to_related_config()
   let ref = s:get_ref()
   let config_files = {}
+  if ref['slug'] == expand('%:t:r') && ref['type'] == 'config'
+    echo 'Cannot find config.'
+    return
+  endif
   for file in s:tracked_files()
     let config_files[fnamemodify(file, ':t:r')] = file
   endfor
