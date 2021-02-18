@@ -1,12 +1,12 @@
 ## Warning!
 
-__*This package is still in early development, breaking changes coming!*__ 💥 💥 💥
+__*This package is still in early development, there may be bugs and breaking changes!*__ 💥 💥 💥
 
 ---
 
 # Vim Sourcery 🧙‍♂️
 
-A Vim plugin to help users organize their vimrc configs.
+A Vim plugin to help users organize their `.vimrc` configs.
 
 - [Rationale](#rationale)
 - [Video Demonstration](#video-demonstration)
@@ -16,7 +16,7 @@ A Vim plugin to help users organize their vimrc configs.
 
 ## Rationale
 
-Most Vim users start out with a single .vimrc file. As that file becomes large and unruly, it becomes desirable to split into multiple vim config files. However, each approach has pros and cons...
+Most Vim users start out with a single `.vimrc` file. As that file becomes large and unruly, it becomes desirable to split into multiple vim config files. However, each approach has pros and cons...
 
 ### Single .vimrc file
 
@@ -58,18 +58,18 @@ Coming soon!
     Plug 'jesseleite/vim-sourcery'
     ```
 
-2. Run the `:SourceryScaffold` command to scaffold out the [file structure conventions](#file-structure-conventions) as displayed below.
+2. Run the `:SourceryScaffold` command to scaffold out one of the [file structure conventions](#file-structure-conventions).
 
-3. Move your plugin definitions into `plugins.vim`, if you aren't already doing this.
+3. Move your plugin manager definitions into `plugins.vim`, if you aren't already doing this.
 
-4. Setup your `.vimrc` to source your plugins from `plugins.vim`, then let Vim Sourcery source the rest:
+4. Setup your `.vimrc` to source your plugins from `plugins.vim`, then initialize Vim Sourcery:
 
     ```vim
     call plug#begin('~/.vim/plugged')
       source ~/.dotfiles/vim/plugins.vim
     call plug#end()
 
-    call sourcery#source()
+    call sourcery#init()
     ```
 
 5. Add the following to your `mappings.vim` file:
@@ -86,18 +86,36 @@ Coming soon!
 
 ## File Structure Conventions
 
-```
-~/.dotfiles
-└── vim
-    ├── vimrc             // Symlink to ~/.vimrc
-    ├── plugins.vim       // All your plugin definitions and settings go here
-    ├── mappings.vim      // All your mappings go here
-    └── config            // All your complex config can optionally be split into files here
-        ├── sanity.vim
-        ├── theme.vim
-        ├── fugitive.vim
-        └── fzf.vim
-```
+Two file structure conventions are automatically detected, sourced, and tracked for [jump mappings](#jumping-between-files) and auto-sourcing on save.
+
+1. The first is based on your standard system vimfiles path. Depending on your OS, this should be in `$HOME/.vim` or `$HOME/vimfiles`. Vim Sourcery will source and/or track the following by default:
+
+    ```
+    ~/.vim
+    ├── $MYVIMRC             // Your .vimrc, wherever it is located
+    ├── plugins.vim          // A plugin manager definitions file will be sourced and tracked
+    ├── mappings.vim         // A mappings file will be sourced and tracked
+    ├── plugin               // All files within the following folders will be tracked as well
+    ├── autoload
+    └── after
+    ```
+
+2. If you prefer to keep your vim configuration in an external dotfiles repo for easy version control, a common practice is to symlink your `.vimrc` to your `$HOME` folder. Vim Sourcery will take care of sourcing and tracking the following, relative to your `.vimrc` within your dotfiles:
+
+    ```
+    ~/.dotfiles
+    └── vim
+        ├── vimrc            // Symlink to ~/.vimrc
+        ├── plugins.vim      // A plugin manager definitions file will be sourced and tracked
+        ├── mappings.vim     // A mappings file will be sourced and tracked
+        └── config           // All files within this folder will be sourced and tracked as well
+            ├── sanity.vim
+            ├── theme.vim
+            ├── fugitive.vim
+            └── fzf.vim
+    ```
+
+    > _**Tip:** Once you have your `.vimrc` symlinked, you can run `:SourceryScaffold` to generate sample files in your dotfiles repo!_
 
 ## Jumping Between Files
 
@@ -105,6 +123,9 @@ Coming soon!
 
 ## TODO
 
+- Update stubs and scaffolding
+  - Refactor to single `config` folder
+  - Disclude `config` folder if scaffolding to system vimfiles path
 - Document setting custom system vimfiles path
 - Document setting custom vim dotfiles path
 - Document initialization functions:
