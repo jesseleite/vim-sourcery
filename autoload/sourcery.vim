@@ -330,10 +330,6 @@ endfunction
 function! sourcery#go_to_related_mappings()
   call s:ensure_index()
   let ref = s:get_ref()
-  if ref['slug'] == expand('%:t:r') && ref['type'] == 'config'
-    echo 'Cannot find mappings.'
-    return
-  endif
   call s:go_to_annotation('mappings')
 endfunction
 
@@ -343,7 +339,7 @@ function! sourcery#go_to_related_config()
   let ref = s:get_ref()
   let config_files = {}
   if ref['slug'] == expand('%:t:r') && ref['type'] == 'config'
-    echo 'Cannot find config.'
+    echo 'Cannot find config annotation.'
     return
   endif
   for file in s:tracked_files()
@@ -378,7 +374,7 @@ function! sourcery#go_to_related_plugin_definition()
 endfunction
 
 function! s:go_to_annotation(type)
-  let error = 'Cannot find ' . a:type . '.'
+  let error = 'Cannot find ' . a:type . ' annotation.'
   let ref = s:get_ref()
   let slug = ref['slug']
   let matches = filter(copy(s:annotations_index), "v:val['type'] == '" . a:type . "' && v:val['slug'] == '" . slug . "'")
