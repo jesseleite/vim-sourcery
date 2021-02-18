@@ -46,8 +46,9 @@ if exists('g:sourcery#tracked_paths') == 0
   let g:sourcery#tracked_paths = [
     \ $MYVIMRC,
     \ resolve($MYVIMRC),
-    \ sourcery#system_vimfiles_path('autoload'),
     \ sourcery#system_vimfiles_path('plugin'),
+    \ sourcery#system_vimfiles_path('autoload'),
+    \ sourcery#system_vimfiles_path('after'),
     \ ]
 endif
 
