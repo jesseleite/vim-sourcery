@@ -69,8 +69,9 @@ endif
 
 " Source another path
 function! sourcery#source_path(path)
-  if index(g:sourcery#sourced_paths, a:path) < 0
-    call add(g:sourcery#sourced_paths, a:path)
+  let path = sourcery#vim_dotfiles_path(a:path)
+  if index(g:sourcery#sourced_paths, path) < 0
+    call add(g:sourcery#sourced_paths, path)
   endif
 endfunction
 
