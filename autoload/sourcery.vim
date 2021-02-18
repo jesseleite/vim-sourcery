@@ -249,6 +249,7 @@ function! sourcery#index()
     call s:index_plugin_definitions(file)
   endfor
   call s:merge_plugin_bindings()
+  let s:indexed = 1
 endfunction
 
 function! s:ensure_index()
@@ -256,7 +257,6 @@ function! s:ensure_index()
     return
   endif
   call sourcery#index()
-  let s:indexed = 1
 endfunction
 
 function! s:clear_index()
