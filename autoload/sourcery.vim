@@ -147,17 +147,9 @@ endfunction
 
 " Register auto-sourcing of vimrc when any tracked configs are saved
 function! sourcery#register_autosourcing()
-  let autocmd_paths = []
-  for path in g:sourcery#tracked_paths
-    if isdirectory(path)
-      call add(autocmd_paths, path . '/*')
-    else
-      call add(autocmd_paths, path)
-    endif
-  endfor
   augroup sourcery_autosource
     autocmd!
-    execute 'autocmd BufWritePost' join(autocmd_paths, ',') 'nested source' $MYVIMRC
+    execute 'autocmd BufWritePost' join(s:autocmd_paths(), ',') 'nested source' $MYVIMRC
   augroup END
 endfunction
 
@@ -276,6 +268,18 @@ function! s:tracked_files()
     endif
   endfor
   return files
+endfunction
+
+function! s:autocmd_paths()
+  let autocmd_paths = []
+  for path in g:sourcery#tracked_paths
+    if isdirectory(path)
+      call add(autocmd_paths, path . '/*')
+    else
+      call add(autocmd_paths, path)
+    endif
+  endfor
+  return autocmd_paths
 endfunction
 
 function! s:flipped_plugin_bindings()
