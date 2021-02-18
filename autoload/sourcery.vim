@@ -25,6 +25,9 @@ endif
 
 " Get path relative to your system vimfiles
 function! sourcery#system_vimfiles_path(path)
+  if matchstrpos(expand(a:path), '/')[1] == 0
+    return a:path
+  endif
   return expand(g:sourcery#system_vimfiles_path . '/' . a:path)
 endfunction
 
@@ -38,6 +41,9 @@ endif
 
 " Get path relative to your vim dotfiles
 function! sourcery#vim_dotfiles_path(path)
+  if matchstrpos(expand(a:path), '/')[1] == 0
+    return a:path
+  endif
   return expand(g:sourcery#vim_dotfiles_path . '/' . a:path)
 endfunction
 
@@ -54,8 +60,9 @@ endif
 
 " Track another path for jump mappings and autosourcing
 function! sourcery#track_path(path)
-  if index(g:sourcery#tracked_paths, a:path) < 0
-    call add(g:sourcery#tracked_paths, a:path)
+  let path = sourcery#vim_dotfiles_path(a:path)
+  if index(g:sourcery#tracked_paths, path) < 0
+    call add(g:sourcery#tracked_paths, path)
   endif
 endfunction
 
@@ -266,7 +273,9 @@ function! s:tracked_files()
     if isdirectory(file)
       let files = files + globpath(file, '**', 0, 1)
     else
-      call add(files, file)
+      if filereadable(file)
+        call add(files, file)
+      endif
     endif
   endfor
   return files
