@@ -86,12 +86,11 @@ Coming soon!
     ├── vimrc             // Symlink to ~/.vimrc
     ├── plugins.vim       // All your plugin definitions and settings go here
     ├── mappings.vim      // All your mappings go here
-    ├── local-config      // Complex local config can optionally be split into files here
-    │   ├── sanity.vim
-    │   └── theme.vim
-    └── plugin-config     // Complex plugin config can optionally be split into files here
-        ├── fugitive.vim
-        └── fzf.vim
+    └── config            // All your complex config can optionally be split into files here
+        ├── sanity.vim
+        ├── theme.vim
+        ├── fugitive.vim
+        └── fzf.vim
 ```
 
 ## Jumping Between Files
@@ -100,5 +99,16 @@ Coming soon!
 
 ## TODO
 
-- Document jumping between files, annotations, explicit annotation bindings, etc.
+- Document setting custom system vimfiles path
+- Document setting custom vim dotfiles path
+- Document initialization functions:
+  - `sourcery#init()` explain what is done by default
+  - `sourcery#track_path()` track another path for jump mappings and autosourcing
+  - `sourcery#source_path()` source and track another path (see above)
+- Document path helper functions:
+  - `sourcery#system_vimfiles_path()` get path relative to system vimfiles (~/.vim)
+  - `sourcery#vim_dotfiles_path()` get path relative to vim dotfiles
+- Document jump mappings
+- Document annotations
+- Document explicit plugin bindings
 - Record quick video demo
