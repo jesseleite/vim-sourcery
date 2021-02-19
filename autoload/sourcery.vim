@@ -343,7 +343,7 @@ function! s:index_matching_lines(file, regex, type)
       if a:type == 'plugin'
         call add(index, {'line_number': line_number, 'file': a:file, 'type': 'plugin', 'plugin': index_match[1], 'line' : line})
       else
-        call add(index, {'line_number': line_number, 'file': a:file, 'type': tolower(index_match[1]), 'slug': index_match[2], 'line': line})
+        call add(index, {'line_number': line_number, 'file': a:file, 'type': tolower(index_match[1]), 'handle': index_match[2], 'line': line})
       endif
     endif
   endfor
@@ -373,15 +373,15 @@ function! sourcery#go_to_related_config()
   call s:ensure_index()
   let ref = s:get_ref()
   let config_files = {}
-  if ref['slug'] == expand('%:t:r') && ref['type'] == 'config'
+  if ref['handle'] == expand('%:t:r') && ref['type'] == 'config'
     echo 'Cannot find config.'
     return
   endif
   for file in s:tracked_files()
     let config_files[fnamemodify(file, ':t:r')] = file
   endfor
-  if has_key(config_files, ref['slug']) && filereadable(config_files[ref['slug']])
-    silent execute 'edit' config_files[ref['slug']]
+  if has_key(config_files, ref['handle']) && filereadable(config_files[ref['handle']])
+    silent execute 'edit' config_files[ref['handle']]
   else
     call s:go_to_annotation('config')
   endif
@@ -393,8 +393,8 @@ function! sourcery#go_to_related_plugin_definition()
   let error = 'Cannot find plugin definition.'
   let ref = s:get_ref()
   let flipped_bindings = s:flipped_plugin_bindings()
-  if has_key(flipped_bindings, ref['slug'])
-    let plugin = flipped_bindings[ref['slug']]
+  if has_key(flipped_bindings, ref['handle'])
+    let plugin = flipped_bindings[ref['handle']]
   else
     echo error
     return
@@ -411,8 +411,8 @@ endfunction
 function! s:go_to_annotation(type)
   let error = 'Cannot find ' . a:type . '.'
   let ref = s:get_ref()
-  let slug = ref['slug']
-  let matches = filter(copy(s:annotations_index), "v:val['type'] == '" . a:type . "' && v:val['slug'] == '" . slug . "'")
+  let handle = ref['handle']
+  let matches = filter(copy(s:annotations_index), "v:val['type'] == '" . a:type . "' && v:val['handle'] == '" . handle . "'")
   if len(matches) > 0
     let match = matches[0]
     silent execute 'edit +' . match['line_number'] match['file']
@@ -436,7 +436,7 @@ endfunction
 function! s:get_ref_from_plug_definition(plugin)
   return {
     \ 'type': 'plugin',
-    \ 'slug': s:plugin_bindings[a:plugin]
+    \ 'handle': s:plugin_bindings[a:plugin]
     \ }
 endfunction
 
@@ -447,14 +447,14 @@ function! s:get_ref_from_paragraph_annotation()
   for line in lines
     let ref_match = matchlist(line, '"\s*\(.*\): \(.*\)')
     if empty(ref_match) == 0
-      return {'type': tolower(ref_match[1]), 'slug': ref_match[2]}
+      return {'type': tolower(ref_match[1]), 'handle': ref_match[2]}
     endif
   endfor
-  return {'type': 'n/a', 'slug': 'n/a'}
+  return {'type': 'n/a', 'handle': 'n/a'}
 endfunction
 
 function! s:get_ref_for_current_config_file()
-  return {'type': 'config', 'slug': expand('%:t:r')}
+  return {'type': 'config', 'handle': expand('%:t:r')}
 endfunction
 
 
@@ -476,6 +476,6 @@ function! sourcery#debug(verbose)
   echo "\nIndexed Annotations:\n---"
   for index in s:annotations_index
     let verbose = a:verbose ? ' --- ' . index['line'] : ''
-    echo index['file'] . ':' . index['line_number'] '---' substitute(index['type'], '^.', '\u&', '') . ':' index['slug'] . verbose
+    echo index['file'] . ':' . index['line_number'] '---' substitute(index['type'], '^.', '\u&', '') . ':' index['handle'] . verbose
   endfor
 endfunction
