@@ -22,7 +22,7 @@
 " nmap <silent> <Leader>v :vsplit<CR>
 
 " " Fzf fuzzy finders
-" " Plugin: fzf
+" " Mappings: fzf
 " nmap <Leader>f :GFiles<CR>
 " nmap <Leader>F :Files<CR>
 " nmap <Leader>b :Buffers<CR>
@@ -30,7 +30,7 @@
 " nmap <Leader>h :Helptags!<CR>
 
 " " Search project with ag
-" " Plugin: agriculture
+" " Mappings: agriculture
 " nmap <Leader>/ <Plug>AgRawSearch
 " vmap <Leader>/ <Plug>AgRawVisualSelection
 " nmap <Leader>* <Plug>AgRawWordUnderCursor

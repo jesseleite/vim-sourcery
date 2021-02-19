@@ -44,7 +44,7 @@ Most Vim users start out with a single `.vimrc` file. As that file becomes large
 | 💚 | Smaller files |
 | 💚 | Every new file is automatically sourced |
 | 💚 | Conventional structure makes it easy to manage as your config grows |
-| 💚 | Easily jump between related plugin definition, mappings, and configs |
+| 💚 | Easily jump between related plugin definitions, mappings, and configs |
 
 ## Video Demonstration
 
@@ -129,9 +129,6 @@ Coming soon!
 
 ## TODO
 
-- Update stubs and scaffolding
-  - Refactor to single `config` folder
-  - Disclude `config` folder if scaffolding to system vimfiles path
 - Document functions:
   - `sourcery#init()` explain what is done by default
   - `sourcery#track_path()` track another path for jump mappings and autosourcing

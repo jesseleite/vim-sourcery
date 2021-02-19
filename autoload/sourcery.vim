@@ -213,6 +213,10 @@ function! s:scaffold_file(file)
   let stub_file = s:stub_path(a:file)
   let new_file = sourcery#vim_dotfiles_path(a:file)
   let new_folder = fnamemodify(new_file, ':h')
+  if matchstrpos(new_folder, g:sourcery#system_vimfiles_path)[1] == 0
+    let new_file = substitute(new_file, '/config', '/plugin', '')
+    let new_folder = substitute(new_folder, '/config', '/plugin', '')
+  endif
   if filereadable(new_file) == 0
     call mkdir(new_folder, 'p')
     call writefile(readfile(stub_file), new_file)
@@ -310,7 +314,7 @@ function! s:flipped_plugin_bindings()
 endfunction
 
 function! s:index_annotations(file)
-  let regex = '^\s*"\s*\(Config\|Mappings\):\s*\(\S*\)'
+  let regex = '^\s*\%("\s*\)*\(Config\|Mappings\):\s*\(\S*\)'
   let s:annotations_index = s:annotations_index + s:index_matching_lines(a:file, regex, 'annotation')
 endfunction
 

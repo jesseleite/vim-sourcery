@@ -26,8 +26,8 @@
 " # Note: If you only require a line or two of config for a specific plugin, it
 " # is recommended that you just put the config at the bottom of this file.
 " # If you have more than a few lines, it is recommended that you create
-" # a file within the `plugin-config` directory. Either way, you'll
-" # be able to use the provided jump mappings to get around!
+" # a separate file within the `config` directory. Either way, you'll
+" # be able to utilize the provided jump mappings to get around!
 
-" " Plugin: agriculture
+" " Config: agriculture
 " let g:agriculture#ag_options = '--case-sensitive'
