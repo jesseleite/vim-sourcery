@@ -118,7 +118,7 @@ Two file structure conventions are automatically detected, sourced, and tracked 
             └── fzf.vim
     ```
 
-    Sourcery should be able to follow your `.vimrc` symlink to find your vim dotfiles, but you can explicitly define the path by setting the following:
+    Sourcery should be able to follow your `.vimrc` symlink to find your vim dotfiles, but you can explicitly define the path by setting the following before your call to `sourcery#init()`:
 
     ```vim
     let g:sourcery#vim_dotfiles_path = '~/.dotfiles/vim'
