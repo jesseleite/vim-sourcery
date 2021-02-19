@@ -93,9 +93,9 @@ if exists('g:sourcery#explicit_plugin_bindings') == 0
   let g:sourcery#explicit_plugin_bindings = {}
 endif
 
-" Define plugin definition regex (supports Plug and Vundle by default)
+" Define plugin definition regex (supports packadd, Plug, and Vundle by default)
 if exists('g:sourcery#plugin_definition_regex') == 0
-  let g:sourcery#plugin_definition_regex = escape("^\\s*%(Plug|Plugin)\\s*['\"]([^'\"]*)['\"]", "(|)'%")
+  let g:sourcery#plugin_definition_regex = escape("^\\s*%(pa[ckad!]*|Plug|Plugin)\\s+['\"]?([^'\"=]+)['\"]?", "(|)'%+?=")
 endif
 
 " Define ignored prefixes in plugin definitions
@@ -140,7 +140,7 @@ function! s:source_file(file)
 endfunction
 
 function! s:source_folder(folder)
-  let folder = a:folder . '/*'
+  let folder = a:folder . '/*.vim'
   for file in split(glob(folder, '\n'))
     if filereadable(file)
       execute 'source' file
@@ -154,11 +154,18 @@ endfunction
 " # Register Auto-Sourcing
 " ------------------------------------------------------------------------------
 
+function! s:re_source()
+  if matchstrpos(expand('%:p'), g:sourcery#system_vimfiles_path)[1] == 0
+    source %
+  endif
+  source $MYVIMRC
+endfunction
+
 " Register auto-sourcing of vimrc when any tracked configs are saved
 function! sourcery#register_autosourcing()
   augroup sourcery_autosource
     autocmd!
-    execute 'autocmd BufWritePost' join(s:autocmd_paths(), ',') 'nested source' $MYVIMRC
+    execute 'autocmd BufWritePost' s:autocmd_paths() 'nested call s:re_source()'
   augroup END
 endfunction
 
@@ -169,12 +176,12 @@ endfunction
 
 " Register vimrc local mappings
 function! sourcery#register_mappings()
-  " if exists('*VimrcLocalMappings')
-  "   augroup sourcery_mappings
-  "     autocmd!
-  "     execute 'autocmd BufReadPost ' . join(g:sourcery#sourced_paths, ',') . ' call VimrcLocalMappings()'
-  "   augroup END
-  " endif
+  if exists('*SourceryMappings')
+    augroup sourcery_mappings
+      autocmd!
+      execute 'autocmd BufReadPost' s:autocmd_paths() 'call SourceryMappings()'
+    augroup END
+  endif
 endfunction
 
 
@@ -285,12 +292,12 @@ function! s:autocmd_paths()
   let autocmd_paths = []
   for path in g:sourcery#tracked_paths
     if isdirectory(path)
-      call add(autocmd_paths, path . '/*')
+      call add(autocmd_paths, path . '/*.vim')
     else
       call add(autocmd_paths, path)
     endif
   endfor
-  return autocmd_paths
+  return join(autocmd_paths, ',')
 endfunction
 
 function! s:flipped_plugin_bindings()
@@ -303,7 +310,7 @@ function! s:flipped_plugin_bindings()
 endfunction
 
 function! s:index_annotations(file)
-  let regex = '^\s*"\s*\(\S*\):\s*\(\S*\)'
+  let regex = '^\s*"\s*\(Config\|Mappings\):\s*\(\S*\)'
   let s:annotations_index = s:annotations_index + s:index_matching_lines(a:file, regex, 'annotation')
 endfunction
 
@@ -330,9 +337,9 @@ function! s:index_matching_lines(file, regex, type)
     let index_match = matchlist(line, a:regex)
     if len(index_match) > 2
       if a:type == 'plugin'
-        call add(index, {'line_number': line_number, 'file': a:file, 'type': 'plugin', 'plugin': index_match[1]})
+        call add(index, {'line_number': line_number, 'file': a:file, 'type': 'plugin', 'plugin': index_match[1], 'line' : line})
       else
-        call add(index, {'line_number': line_number, 'file': a:file, 'type': tolower(index_match[1]), 'slug': index_match[2]})
+        call add(index, {'line_number': line_number, 'file': a:file, 'type': tolower(index_match[1]), 'slug': index_match[2], 'line': line})
       endif
     endif
   endfor
@@ -363,7 +370,7 @@ function! sourcery#go_to_related_config()
   let ref = s:get_ref()
   let config_files = {}
   if ref['slug'] == expand('%:t:r') && ref['type'] == 'config'
-    echo 'Cannot find config annotation.'
+    echo 'Cannot find config.'
     return
   endif
   for file in s:tracked_files()
@@ -398,7 +405,7 @@ function! sourcery#go_to_related_plugin_definition()
 endfunction
 
 function! s:go_to_annotation(type)
-  let error = 'Cannot find ' . a:type . ' annotation.'
+  let error = 'Cannot find ' . a:type . '.'
   let ref = s:get_ref()
   let slug = ref['slug']
   let matches = filter(copy(s:annotations_index), "v:val['type'] == '" . a:type . "' && v:val['slug'] == '" . slug . "'")
@@ -444,4 +451,27 @@ endfunction
 
 function! s:get_ref_for_current_config_file()
   return {'type': 'config', 'slug': expand('%:t:r')}
+endfunction
+
+
+" ------------------------------------------------------------------------------
+" # Debugging
+" ------------------------------------------------------------------------------
+
+function! sourcery#debug(verbose)
+  call s:ensure_index()
+  echo "\nTracked Files:\n---"
+  for file in s:tracked_files()
+    echo file
+  endfor
+  echo "\nIndexed Plugins:\n---"
+  for index in s:plugin_definitions_index
+    let verbose = a:verbose ? ' --- ' . index['line'] : ''
+    echo index['file'] . ':' . index['line_number'] '---' index['plugin'] '=>' s:plugin_bindings[index['plugin']] . verbose
+  endfor
+  echo "\nIndexed Annotations:\n---"
+  for index in s:annotations_index
+    let verbose = a:verbose ? ' --- ' . index['line'] : ''
+    echo index['file'] . ':' . index['line_number'] '---' substitute(index['type'], '^.', '\u&', '') . ':' index['slug'] . verbose
+  endfor
 endfunction

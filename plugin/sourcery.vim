@@ -1,5 +1,6 @@
 " Commands
 command! SourceryScaffold call sourcery#scaffold()
+command! -bang SourceryDebug call sourcery#debug(<bang>0)
 
 " Mappings
 nnoremap <silent> <Plug>SourceryGoToRelatedPluginDefinition :call sourcery#go_to_related_plugin_definition()<CR>
