@@ -103,7 +103,7 @@ Two file structure conventions are automatically detected, sourced, and tracked 
     └── after
     ```
 
-2. If you prefer to keep your vim configuration in an external dotfiles repo for easy version control, a common practice is to symlink your `.vimrc` to your `$HOME` folder. Sourcery will take care of sourcing and tracking the following, relative to your `.vimrc` within your dotfiles:
+2. If you prefer to keep your vim configuration in an external dotfiles repo for easy version control, a common practice is to symlink the `.vimrc` in your `$HOME` folder to your version controlled repo, wherever it exists on your system. Sourcery will take care of sourcing and tracking the following, relative to the `.vimrc` within your dotfiles:
 
     ```
     ~/.dotfiles
@@ -118,7 +118,7 @@ Two file structure conventions are automatically detected, sourced, and tracked 
             └── fzf.vim
     ```
 
-    Sourcery should be able to follow your `.vimrc` symlink to find your vim dotfiles, but you can explicitly define the path by setting the following before your call to `sourcery#init()`:
+    Sourcery should be able to follow the `.vimrc` symlink in your `$HOME` folder to find your vim dotfiles, but you can explicitly define the path by setting the following before your call to `sourcery#init()`:
 
     ```vim
     let g:sourcery#vim_dotfiles_path = '~/.dotfiles/vim'
