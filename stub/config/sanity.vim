@@ -2,9 +2,9 @@
 " # Sane Defaults
 " ------------------------------------------------------------------------------
 " # Maybe you need a place to put all of your basic vim settings and
-" # sane defaults. Feel free to create as many files within the
-" # local-config folder as you wish. How you organize your
-" # configs within this folder is totally up to you!
+" # sane defaults. Feel free to create as many files within this
+" # config folder as you wish. How you choose to organize the
+" # files within this config folder is totally up to you!
 
 
 " ------------------------------------------------------------------------------

@@ -4,8 +4,8 @@
 " # Maybe you have a plugin like Fzf installed and need a place to put all of
 " # your plugin settings and customizations. If you have more than a few
 " # lines of config, it is recommended that you create a file within
-" # the plugin-config folder like this, specifically named after
-" # the plugin so that you can use Sourcery's jump mappings.
+" # this config folder, specifically named after the plugin so
+" # that you can properly utilize Sourcery's jump mappings.
 " #
 " # More info: https://github.com/jesseleite/vim-sourcery#jumping-between-files
 
