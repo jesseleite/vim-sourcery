@@ -6,7 +6,7 @@ __*This package is still in early development, there may be bugs and breaking ch
 
 # Vim Sourcery 🧙‍♂️
 
-A Vim plugin to help users organize their `.vimrc` configs.
+A Vim plugin to help users organize and navigate their `.vimrc` configs.
 
 - [Rationale](#rationale)
 - [Video Demonstration](#video-demonstration)
