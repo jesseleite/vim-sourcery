@@ -144,7 +144,7 @@ In the above example, `fzf` will be the handle we'll need to use for our jump po
 
 ```vim
 let g:sourcery#explicit_plugin_bindings = {
-  \ 'fzf.vim': 'some-other-handle',
+  \ 'junegunn/fzf.vim': 'some-other-handle',
   \ }
 ```
 
