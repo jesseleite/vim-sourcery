@@ -159,6 +159,7 @@ function! s:re_source()
     source %
   endif
   source $MYVIMRC
+  call sourcery#index()
 endfunction
 
 " Register auto-sourcing of vimrc when any tracked configs are saved
