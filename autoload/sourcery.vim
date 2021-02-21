@@ -116,10 +116,18 @@ if exists('g:sourcery#plugin_definition_ignored_suffixes') == 0
     \ ]
 endif
 
-" Define plugin definition paths for smarter sourcing around disabled plugins, etc.
+" Define plugin definition paths for smarter sourcing and when plugins are disabled
 if exists('g:sourcery#plugin_definition_paths') == 0
   let g:sourcery#plugin_definition_paths = [
     \ sourcery#vim_dotfiles_path('plugins.vim'),
+    \ ]
+endif
+
+" Define ignored plugin definition paths, in case they contain interfering definitions
+if exists('g:sourcery#plugin_definition_ignored_paths') == 0
+  let g:sourcery#plugin_definition_ignored_paths = [
+    \ sourcery#system_vimfiles_path('autoload/plug.vim'),
+    \ sourcery#system_vimfiles_path('bundle/Vundle.vim'),
     \ ]
 endif
 
@@ -283,11 +291,13 @@ endfunction
 function! s:index_disabled_plugins()
   let disabled = []
   for file in g:sourcery#plugin_definition_paths
-    for index in s:index_matching_lines(file, g:sourcery#plugin_definition_regex, 'plugin')
-      if index['disabled']
-        call add(disabled, s:get_plugin_handle(index['plugin']))
-      endif
-    endfor
+    if filereadable(file)
+      for index in s:index_matching_lines(file, g:sourcery#plugin_definition_regex, 'plugin')
+        if index['disabled']
+          call add(disabled, s:get_plugin_handle(index['plugin']))
+        endif
+      endfor
+    endif
   endfor
   let s:disabled_plugins = disabled
 endfunction
@@ -319,6 +329,9 @@ function! s:index_annotations(file)
 endfunction
 
 function! s:index_plugin_definitions(file)
+  if index(g:sourcery#plugin_definition_ignored_paths, a:file) >= 0
+    return
+  endif
   let s:plugin_definitions_index = s:plugin_definitions_index + s:index_matching_lines(a:file, g:sourcery#plugin_definition_regex, 'plugin')
   for plugin in s:plugin_definitions_index
     let s:plugin_bindings[plugin['plugin']] = s:get_plugin_handle(plugin['plugin'])
@@ -431,10 +444,7 @@ function! sourcery#go_to_related_plugin_definition()
     return
   endif
   let matches = filter(copy(s:plugin_definitions_index), "v:val['plugin'] == '" . plugin . "'")
-  let sourced_matches = filter(copy(matches), "index(s:get_files_from_paths(g:sourcery#sourced_paths), v:val['file']) >= 0")
-  if len(sourced_matches) > 0
-    let match = sourced_matches[0]
-  elseif len(matches) > 0
+  if len(matches) > 0
     let match = matches[0]
   else
     echo error
