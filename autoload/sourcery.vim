@@ -4,7 +4,7 @@
 
 " Initialize all the things
 function! sourcery#init()
-  call sourcery#source_tracked_paths()
+  call sourcery#source_and_track_paths()
   call sourcery#register_autosourcing()
   call sourcery#register_mappings()
 endfunction
@@ -95,7 +95,7 @@ endif
 
 " Define plugin definition regex (supports packadd, Plug, and Vundle by default)
 if exists('g:sourcery#plugin_definition_regex') == 0
-  let g:sourcery#plugin_definition_regex = escape("^\\s*%(pa[ckad!]*|Plug|Plugin)\\s+['\"]?([^'\"=]+)['\"]?", "(|)'%+?=")
+  let g:sourcery#plugin_definition_regex = escape("^\\s*(\"*)[\" ]*(pa[ckad!]*|Plug|Plugin)\\s+['\"]?([^'\"=]+)['\"]?", "(|)'%+?=")
 endif
 
 " Define ignored prefixes in plugin definitions
@@ -116,37 +116,37 @@ if exists('g:sourcery#plugin_definition_ignored_suffixes') == 0
     \ ]
 endif
 
+" Define plugin definition paths for smarter sourcing around disabled plugins, etc.
+if exists('g:sourcery#plugin_definition_paths') == 0
+  let g:sourcery#plugin_definition_paths = [
+    \ sourcery#vim_dotfiles_path('plugins.vim'),
+    \ ]
+endif
+
 
 " ------------------------------------------------------------------------------
 " # Sourcing
 " ------------------------------------------------------------------------------
 
 " Source and track all configured paths
-function! sourcery#source_tracked_paths()
+function! sourcery#source_and_track_paths()
   for path in g:sourcery#sourced_paths
-    if isdirectory(path)
-      call s:source_folder(path)
-    else
-      call s:source_file(path)
-    endif
+    call sourcery#track_path(path)
   endfor
-endfunction
-
-function! s:source_file(file)
-  if filereadable(a:file)
-    execute 'source' a:file
-    call sourcery#track_path(a:file)
-  endif
-endfunction
-
-function! s:source_folder(folder)
-  let folder = a:folder . '/*.vim'
-  for file in split(glob(folder, '\n'))
-    if filereadable(file)
+  call s:index_disabled_plugins()
+  for file in s:get_files_from_paths(g:sourcery#sourced_paths)
+    if s:should_source_file(file)
       execute 'source' file
     endif
   endfor
-  call sourcery#track_path(a:folder)
+endfunction
+
+function! s:should_source_file(file)
+  let handle = fnamemodify(a:file, ':t:r')
+  if filereadable(a:file) == 0 || index(s:disabled_plugins, handle) >= 0
+    return 0
+  endif
+  return 1
 endfunction
 
 
@@ -254,10 +254,11 @@ let s:indexed = 0
 let s:annotations_index = []
 let s:plugin_definitions_index = []
 let s:plugin_bindings = {}
+let s:disabled_plugins = []
 
 function! sourcery#index()
   call s:clear_index()
-  for file in s:tracked_files()
+  for file in s:get_files_from_paths(g:sourcery#tracked_paths)
     call s:index_annotations(file)
     call s:index_plugin_definitions(file)
   endfor
@@ -279,18 +280,16 @@ function! s:clear_index()
   let s:plugin_bindings = {}
 endfunction
 
-function! s:tracked_files()
-  let files = []
-  for file in g:sourcery#tracked_paths
-    if isdirectory(file)
-      let files = files + globpath(file, '**', 0, 1)
-    else
-      if filereadable(file)
-        call add(files, file)
+function! s:index_disabled_plugins()
+  let disabled = []
+  for file in g:sourcery#plugin_definition_paths
+    for index in s:index_matching_lines(file, g:sourcery#plugin_definition_regex, 'plugin')
+      if index['disabled']
+        call add(disabled, s:get_plugin_handle(index['plugin']))
       endif
-    endif
+    endfor
   endfor
-  return files
+  let s:disabled_plugins = disabled
 endfunction
 
 function! s:autocmd_paths()
@@ -322,15 +321,19 @@ endfunction
 function! s:index_plugin_definitions(file)
   let s:plugin_definitions_index = s:plugin_definitions_index + s:index_matching_lines(a:file, g:sourcery#plugin_definition_regex, 'plugin')
   for plugin in s:plugin_definitions_index
-    let cleaned = substitute(plugin['plugin'], '^.*\/', '', '')
-    for ignored in g:sourcery#plugin_definition_ignored_prefixes
-      let cleaned = substitute(cleaned, '^' . escape(ignored, '.-'), '', '')
-    endfor
-    for ignored in g:sourcery#plugin_definition_ignored_suffixes
-      let cleaned = substitute(cleaned, escape(ignored, '.-') . '$', '', '')
-    endfor
-    let s:plugin_bindings[plugin['plugin']] = cleaned
+    let s:plugin_bindings[plugin['plugin']] = s:get_plugin_handle(plugin['plugin'])
   endfor
+endfunction
+
+function! s:get_plugin_handle(plugin_path)
+  let handle = substitute(a:plugin_path, '^.*\/', '', '')
+  for ignored in g:sourcery#plugin_definition_ignored_prefixes
+    let handle = substitute(handle, '^' . escape(ignored, '.-'), '', '')
+  endfor
+  for ignored in g:sourcery#plugin_definition_ignored_suffixes
+    let handle = substitute(handle, escape(ignored, '.-') . '$', '', '')
+  endfor
+  return handle
 endfunction
 
 function! s:index_matching_lines(file, regex, type)
@@ -342,9 +345,22 @@ function! s:index_matching_lines(file, regex, type)
     let index_match = matchlist(line, a:regex)
     if len(index_match) > 2
       if a:type == 'plugin'
-        call add(index, {'line_number': line_number, 'file': a:file, 'type': 'plugin', 'plugin': index_match[1], 'line' : line})
+        call add(index, {
+          \ 'line_number': line_number,
+          \ 'file': a:file,
+          \ 'line' : line,
+          \ 'type': 'plugin',
+          \ 'plugin': index_match[3],
+          \ 'disabled': len(index_match[1]) > 0,
+          \ })
       else
-        call add(index, {'line_number': line_number, 'file': a:file, 'type': tolower(index_match[1]), 'handle': index_match[2], 'line': line})
+        call add(index, {
+          \ 'line_number': line_number,
+          \ 'file': a:file,
+          \ 'line': line,
+          \ 'type': tolower(index_match[1]),
+          \ 'handle': index_match[2],
+          \ })
       endif
     endif
   endfor
@@ -355,6 +371,20 @@ function! s:merge_plugin_bindings()
   for [key, value] in items(g:sourcery#explicit_plugin_bindings)
     let s:plugin_bindings[key] = value
   endfor
+endfunction
+
+function! s:get_files_from_paths(paths)
+  let files = []
+  for file in a:paths
+    if isdirectory(file)
+      let files = files + globpath(file, '**', 0, 1)
+    else
+      if filereadable(file)
+        call add(files, file)
+      endif
+    endif
+  endfor
+  return files
 endfunction
 
 
@@ -378,7 +408,7 @@ function! sourcery#go_to_related_config()
     echo 'Cannot find config.'
     return
   endif
-  for file in s:tracked_files()
+  for file in s:get_files_from_paths(g:sourcery#tracked_paths)
     let config_files[fnamemodify(file, ':t:r')] = file
   endfor
   if has_key(config_files, ref['handle']) && filereadable(config_files[ref['handle']])
@@ -401,12 +431,16 @@ function! sourcery#go_to_related_plugin_definition()
     return
   endif
   let matches = filter(copy(s:plugin_definitions_index), "v:val['plugin'] == '" . plugin . "'")
-  if len(matches) > 0
+  let sourced_matches = filter(copy(matches), "index(s:get_files_from_paths(g:sourcery#sourced_paths), v:val['file']) >= 0")
+  if len(sourced_matches) > 0
+    let match = sourced_matches[0]
+  elseif len(matches) > 0
     let match = matches[0]
-    silent execute 'edit +' . match['line_number'] match['file']
   else
     echo error
+    return
   endif
+  silent execute 'edit +' . match['line_number'] match['file']
 endfunction
 
 function! s:go_to_annotation(type)
@@ -425,7 +459,7 @@ endfunction
 function! s:get_ref()
   let plugin_match = matchlist(getline('.'), g:sourcery#plugin_definition_regex)
   if len(plugin_match) > 0
-    return s:get_ref_from_plug_definition(plugin_match[1])
+    return s:get_ref_from_plug_definition(plugin_match[3])
   endif
   let ref = s:get_ref_from_paragraph_annotation()
   if ref['type'] == 'n/a'
@@ -466,8 +500,17 @@ endfunction
 function! sourcery#debug(verbose)
   call s:ensure_index()
   echo "\nTracked Files:\n---"
-  for file in s:tracked_files()
-    echo file
+  let sourced_files = s:get_files_from_paths(g:sourcery#sourced_paths)
+  for file in s:get_files_from_paths(g:sourcery#tracked_paths)
+    let sourced = index(sourced_files, file) >= 0
+    let disabled = s:should_source_file(file) == 0
+    let status = ''
+    if disabled
+      let status = '--- DISABLED'
+    elseif sourced
+      let status = '--- sourced'
+    endif
+    echo file status
   endfor
   echo "\nIndexed Plugins:\n---"
   for index in s:plugin_definitions_index
