@@ -509,6 +509,12 @@ endfunction
 
 function! sourcery#debug(verbose)
   call s:ensure_index()
+  call s:debug_tracked_files(a:verbose)
+  call s:debug_indexed_plugins(a:verbose)
+  call s:debug_indexed_annotations(a:verbose)
+endfunction
+
+function! s:debug_tracked_files(verbose)
   echo "\nTracked Files:\n---"
   let sourced_files = s:get_files_from_paths(g:sourcery#sourced_paths)
   for file in s:get_files_from_paths(g:sourcery#tracked_paths)
@@ -522,11 +528,17 @@ function! sourcery#debug(verbose)
     endif
     echo file status
   endfor
+endfunction
+
+function! s:debug_indexed_plugins(verbose)
   echo "\nIndexed Plugins:\n---"
   for index in s:plugin_definitions_index
     let verbose = a:verbose ? ' --- ' . index['line'] : ''
     echo index['file'] . ':' . index['line_number'] '---' index['plugin'] '=>' s:plugin_bindings[index['plugin']] . verbose
   endfor
+endfunction
+
+function! s:debug_indexed_annotations(verbose)
   echo "\nIndexed Annotations:\n---"
   for index in s:annotations_index
     let verbose = a:verbose ? ' --- ' . index['line'] : ''
