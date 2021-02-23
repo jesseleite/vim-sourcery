@@ -2,11 +2,13 @@
 
 __*This package is still in early development, there may be bugs and breaking changes!*__ 💥 💥 💥
 
+__*I am currently adding better Neovim support, please be patient with me!*__ 🙏 🙏 🙏
+
 ---
 
 # Vim Sourcery 🧙‍♂️
 
-A Vim plugin to help users organize and navigate their `.vimrc` configs.
+A Vim plugin to help users organize and navigate their `.vimrc` / `init.vim` configs.
 
 - [Rationale](#rationale)
 - [Video Demonstration](#video-demonstration)
@@ -19,9 +21,9 @@ A Vim plugin to help users organize and navigate their `.vimrc` configs.
 
 ## Rationale
 
-Most Vim users start out with a single `.vimrc` file. As that file becomes large and unruly, it becomes desirable to split into multiple vim config files. However, each approach has pros and cons...
+Most Vim users start out with a single `.vimrc` / `init.vim` file. As that file becomes large and unruly, it becomes desirable to split into multiple vim config files. However, each approach has pros and cons...
 
-### Single .vimrc file
+### Single file
 
 | | Pros & Cons |
 | :- | :- |
@@ -91,40 +93,50 @@ Coming soon!
 
 Two file structure conventions are automatically detected, sourced, and tracked for [jump mappings](#jumping-between-files) and auto-sourcing on save.
 
-1. The first is based on your standard system vimfiles path. Depending on your OS, this should be in `$HOME/.vim` or `$HOME/vimfiles`. Sourcery will source and/or track the following by default:
+### Standard Config Location
 
-    ```
-    ~/.vim
-    ├── $MYVIMRC             // Your .vimrc, wherever it is located
-    ├── plugins.vim          // A plugin manager definitions file will be sourced and tracked
-    ├── mappings.vim         // A mappings file will be sourced and tracked
-    ├── plugin               // All files within the following folders will be tracked as well
-    ├── autoload
-    └── after
-    ```
+The first is based on your standard system vimfiles path. Depending on your OS and Vim distribution, this should be in `$HOME/.vim`, `$HOME/.config/nvim`, or `$HOME/vimfiles`. Sourcery will source and/or track the following by default:
 
-2. If you prefer to keep your vim configuration in an external dotfiles repo for easy version control, a common practice is to symlink the `.vimrc` in your `$HOME` folder to your version controlled repo, wherever it exists on your system. Sourcery will take care of sourcing and tracking the following, relative to the `.vimrc` within your dotfiles:
+```
+~/.vim
+├── $MYVIMRC               // Your .vimrc / init.vim, wherever it is located
+├── plugins.vim            // A plugin manager definitions file will be sourced & tracked
+├── mappings.vim           // A mappings file will be sourced & tracked
+├── plugin                 // All files within the following folders will be tracked as well
+├── autoload
+└── after
+```
 
-    ```
-    ~/.dotfiles
-    └── vim
-        ├── vimrc            // Symlink your .vimrc to this file
-        ├── plugins.vim      // A plugin manager definitions file will be sourced and tracked
-        ├── mappings.vim     // A mappings file will be sourced and tracked
-        └── config           // All files within this folder will be sourced and tracked as well
-            ├── sanity.vim
-            ├── theme.vim
-            ├── fugitive.vim
-            └── fzf.vim
-    ```
+> _**Tip:** This is what is sourced and tracked by default. Feel free to delete `plugins.vim` and/or `mappings.vim` if you prefer to organize that stuff in a different location. You may also [source & track as many extra paths](#sourcing--tracking) as you see fit. The world is your oyster!_
 
-    Sourcery should be able to follow the `.vimrc` symlink in your `$HOME` folder to find your vim dotfiles, but you can explicitly define the path by setting the following before your call to `sourcery#init()`:
+### Custom External Location
 
-    ```vim
-    let g:sourcery#vim_dotfiles_path = '~/.dotfiles/vim'
-    ```
+If you prefer a more custom config structure in an external location, a common practice is to symlink your `~/.vimrc` / `~/.config/nvim/init.vim` to your custom dotfiles location. Sourcery will source and/or track the following by default, relative to the `.vimrc` / `init.vim` within your dotfiles:
 
-    > _**Tip:** If you want Sourcery to help scaffold example files based on these conventions, run the `:SourceryScaffold` command!_
+```
+~/.dotfiles
+└── vim
+    ├── $MYVIMRC           // Symlink your .vimrc / init.vim to this file
+    ├── plugins.vim        // A plugin manager definitions file will be sourced & tracked
+    ├── mappings.vim       // A mappings file will be sourced & tracked
+    └── config             // All files within this folder will be sourced & tracked as well
+        ├── sanity.vim
+        ├── theme.vim
+        ├── fugitive.vim
+        └── fzf.vim
+```
+
+Sourcery should be able to follow the `.vimrc` / `init.vim` symlink to find your vim dotfiles, but you can explicitly define the path by setting the following before your call to `sourcery#init()`:
+
+```vim
+let g:sourcery#vim_dotfiles_path = '~/.dotfiles/vim'
+```
+
+> _**Tip:** Again, you may customize the above structure however you see fit! Just be sure to [source & track any custom paths](#sourcing--tracking) you wish to configure._
+
+### Scaffolding Files
+
+If you want Sourcery to help scaffold example files for either of the above conventions, run the `:SourceryScaffold` command!
 
 ## Jumping Between Files
 
@@ -210,7 +222,7 @@ call sourcery#init()
 
 ### Tracking
 
-When files are sourced, they are also tracked for Sourcery's [jump mappings](#jumping-between-files) and [auto-sourcing](#auto-sourcing). If you wish to track a path without sourcing it, you can do this before initializing Sourcery:
+When files are sourced, they are also tracked for Sourcery's [jump mappings](#jumping-between-files) and [auto-sourcing](#auto-sourcing). If you don't want Sourcery to handle the sourcing of a file or folder, it is recommended you still track it before initializing Sourcery:
 
 ```vim
 call sourcery#track_path('custom-file.vim')
@@ -250,6 +262,9 @@ sourcery#system_vimfiles_path('plugin/sushi.vim')
 
 The best part about Sourcery is what is not yet finished:
 
+- Better Neovim config pathing support
+- Lua config support
+- After folder tracking with subfolders
 - Record quick video demo
 - Write proper vim help file
 - Order pizza
