@@ -16,7 +16,9 @@ endfunction
 
 " Define system vimfiles path
 if exists('g:sourcery#system_vimfiles_path') == 0
-  if has('win32')
+  if has('nvim')
+    let g:sourcery#system_vimfiles_path = stdpath('config')
+  elseif has('win32')
     let g:sourcery#system_vimfiles_path = $HOME . '/vimfiles'
   else
     let g:sourcery#system_vimfiles_path = $HOME . '/.vim'
