@@ -1,8 +1,6 @@
 ## Warning!
 
-__*This package is still in early development, there may be bugs and breaking changes!*__ 💥 💥 💥
-
-__*I am currently adding better Neovim support, please be patient with me!*__ 🙏 🙏 🙏
+__*This package is still in early development, there may be bugs!*__ 💥 💥 💥
 
 ---
 
@@ -140,7 +138,7 @@ If you want Sourcery to help scaffold example files for either of the above conv
 
 ## Jumping Between Files
 
-The best part about Sourcery is the jump mappings. These let you jump between related plugin definition, mappings, and configs, no matter where they are in your vim dotfiles. To do this, Sourcery uses a set of annotation conventions to setup your jump points. Imagine you have the following pieces of code somewhere in your .vimrc:
+The best part about Sourcery is the jump mappings. These let you jump between related plugin definition, mappings, and configs, no matter where they are in your vim dotfiles. To do this, Sourcery uses a set of annotation conventions to setup your jump points. Imagine you have the following pieces of code somewhere in your config:
 
 ### Plugin Definitions
 
@@ -172,6 +170,8 @@ nmap <Leader>h :History<CR>
 nmap <Leader>H :Helptags<CR>
 ```
 
+> _**Note:** If within a .lua file, you can use a lua comment like `-- Mappings: fzf` to annotate mappings._
+
 ### Config Annotations:
 
 The same applies for a related set of config and/or settings. To setup a jump point to a related set of config, add the `" Config: <handle>` annotation above that config:
@@ -182,9 +182,11 @@ let g:fzf_history_dir = '~/.vim/fzf_history'
 let g:fzf_preview_window = 'right:50%:noborder:hidden'
 ```
 
+> _**Note:** If within a .lua file, you can use a lua comment like `-- Config: fzf` to annotate config._
+
 ### Dedicated Config Files:
 
-If you have a lot of config for a specific thing, you can create a separate `<handle>.vim` config file in the `plugin` or `config` directory (depending on your chosen [file structure](#file-structure-conventions)). For our fzf plugin examples above, we would create an `fzf.vim` config file for all of our fzf-related config and settings.
+If you have a lot of config for a specific thing, you can create a separate `<handle>.vim` or `<handle>.lua` config file in the `plugin` or `config` directory (depending on your chosen [file structure](#file-structure-conventions)). For our fzf plugin examples above, we would create an `fzf.vim` config file for all of our fzf-related config and settings.
 
 ### Jump Mappings
 
@@ -204,16 +206,17 @@ The best part about Sourcery is the sourcing & tracking. Sourcery really isn't s
 
 ### Sourcing
 
-By default, Vim will automatically source your .vimrc (wherever it is located, see `:help vimrc`), as well as files within `autoload`, `plugin`, `after`, etc. within your system vimfiles directory (see `:help vimfiles`).
+By default, Vim will automatically source your `.vimrc` / `init.vim` (wherever it is located, see `:help vimrc`), as well as files within `autoload`, `plugin`, `after`, etc. within your system vimfiles directory (see `:help vimfiles`).
 
-On top of the files Vim sources for you, Sourcery will also source `plugins.vim` and `mappings.vim` files, and if you've chosen an external dotfiles repo (see [file structure conventions](#file-structure-conventions)), any files added to `config` will also be sourced.
+On top of the files Vim sources for you, Sourcery will also source `plugins.vim` and `mappings.vim` files, and if you've chosen an external dotfiles repo (see [file structure conventions](#file-structure-conventions)), any files added to a `config` folder will also be sourced.
 
 > _**Note:** The `plugins.vim`, `mappings.vim`, and `config` paths are totally optional. Feel free to delete them if they don't suit your fancy!_
 
-If you have extra `*.vim` files or folders you wish to source, you can source them before you initialize Sourcery:
+If you have extra `*.vim` / `*.lua` files or folders you wish to source, you can source them before you initialize Sourcery:
 
 ```vim
 call sourcery#source_path('custom-file.vim')
+call sourcery#source_path('custom-file.lua')
 call sourcery#source_path('custom-config-folder')
 call sourcery#init()
 ```
@@ -226,6 +229,7 @@ When files are sourced, they are also tracked for Sourcery's [jump mappings](#ju
 
 ```vim
 call sourcery#track_path('custom-file.vim')
+call sourcery#track_path('custom-file.lua')
 call sourcery#track_path('custom-config-folder')
 call sourcery#init()
 ```
@@ -234,7 +238,7 @@ call sourcery#init()
 
 ## Auto-Sourcing
 
-The best part about Sourcery is the auto-sourcing. Sourcery attempts to re-source your whole vim config when saving any of your sourced or tracked files. This kind of thing is easy when you have a single `.vimrc` file, but it can get more complicated to setup when you split everything out into multiple files. Sourcery does all of this for you, so that it's easier to test out changes in your vimscript without having to restart Vim.
+The best part about Sourcery is the auto-sourcing. Sourcery attempts to re-source your whole vim config when saving any of your sourced or tracked files. This kind of thing is easy when you have a single `.vimrc` / `init.vim` file, but it can get more complicated to setup when you split everything out into multiple files. Sourcery does all of this for you, so that it's easier to test out changes in your vimscript without having to restart Vim.
 
 > _**Note:** That said, sometimes you need to restart Vim anyway, like when removing variables, etc. For example, if Vim has sourced a variable and you remove it, the value may remain in memory until you restart Vim._
 
@@ -262,8 +266,6 @@ sourcery#system_vimfiles_path('plugin/sushi.vim')
 
 The best part about Sourcery is what is not yet finished:
 
-- Better Neovim config pathing support
-- Lua config support
 - After folder tracking with subfolders
 - Record quick video demo
 - Write proper vim help file
