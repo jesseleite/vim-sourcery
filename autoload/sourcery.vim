@@ -541,9 +541,12 @@ function! s:debug_tracked_files(verbose)
   let sourced_files = s:get_files_from_paths(g:sourcery#sourced_paths)
   for file in s:get_files_from_paths(g:sourcery#tracked_paths)
     let sourced = index(sourced_files, file) >= 0
+    let nvim_only = fnamemodify(file, ':e') == 'lua' && !has('nvim')
     let disabled = s:should_source_file(file) == 0
     let status = ''
-    if disabled
+    if nvim_only
+      let status = '--- DISABLED (lua not supported)'
+    elseif disabled
       let status = '--- DISABLED'
     elseif sourced
       let status = '--- sourced'
