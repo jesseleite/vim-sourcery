@@ -97,7 +97,7 @@ endif
 
 " Define plugin definition regex (supports packadd, Plug, and Vundle by default)
 if exists('g:sourcery#plugin_definition_regex') == 0
-  let g:sourcery#plugin_definition_regex = escape("^\\s*(\"*)[\" ]*(pa[ckad!]*|Plug|Plugin)\\s+['\"]?([^'\"=]+)['\"]?", "(|)'%+?=")
+  let g:sourcery#plugin_definition_regex = escape("^\\s*(\"*)[\" ]*(pa[ckad!]*|Plug|Plugin)\\s+['\"]?([^'\"=]+)['\"]?", "(|)'+?=")
 endif
 
 " Define ignored prefixes in plugin definitions
@@ -131,6 +131,16 @@ if exists('g:sourcery#plugin_definition_ignored_paths') == 0
     \ sourcery#system_vimfiles_path('autoload/plug.vim'),
     \ sourcery#system_vimfiles_path('bundle/Vundle.vim'),
     \ ]
+endif
+
+
+" ------------------------------------------------------------------------------
+" # Annotation Configuration
+" ------------------------------------------------------------------------------
+
+" Define annotation regex (currently supporting only Config and Mappings annotations)
+if exists('g:sourcery#annotation_regex') == 0
+  let g:sourcery#annotation_regex = escape("^\\s*%([\"-]+\\s*)*(Config|Mappings):\\s*(\\S*)", "(|)%+")
 endif
 
 
@@ -326,8 +336,7 @@ function! s:flipped_plugin_bindings()
 endfunction
 
 function! s:index_annotations(file)
-  let regex = '^\s*\%("\s*\)*\(Config\|Mappings\):\s*\(\S*\)'
-  let s:annotations_index = s:annotations_index + s:index_matching_lines(a:file, regex, 'annotation')
+  let s:annotations_index = s:annotations_index + s:index_matching_lines(a:file, g:sourcery#annotation_regex, 'annotation')
 endfunction
 
 function! s:index_plugin_definitions(file)
@@ -492,7 +501,7 @@ function! s:get_ref_from_paragraph_annotation()
   let paragraph = @l
   let lines = split(paragraph, '\n')
   for line in lines
-    let ref_match = matchlist(line, '"\s*\(.*\): \(.*\)')
+    let ref_match = matchlist(line, g:sourcery#annotation_regex)
     if empty(ref_match) == 0
       return {'type': tolower(ref_match[1]), 'handle': ref_match[2]}
     endif
