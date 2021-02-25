@@ -200,6 +200,39 @@ function! SourceryMappings()
 endfunction
 ```
 
+### Setting Up Custom Annotations
+
+Maybe you want to setup a custom annotation and jump mapping for something other than config and mappings. For example, maybe you have a set of related highlight customizations. Here is how you would go about adding custom annotation types:
+
+1. Define an explicit annotation types list before calling `sourcery#init()`, so that Sourcery knows which annotations to index:
+
+    ```vim
+    let g:sourcery#annotation_types = [
+      \ 'Mappings',
+      \ 'Config',
+      \ 'Highlights',
+      \ ]
+    ```
+
+2. Add a mapping for jumping to your new annotation to your `SourceryMappings()` function:
+
+    ```vim
+    function! SourceryMappings()
+      " ...
+      nmap <silent><buffer> gh :SourceryGoToRelatedAnnotation Highlights<CR>
+    endfunction
+    ```
+
+3. You should now be able to jump to your custom annotation!
+
+    ```vim
+    " Highlights: fzf
+    highlight FzfFg ctermfg=white
+    highlight FzfBg ctermbg=none
+    highlight FzfHl ctermfg=blue
+    highlight FzfBorder ctermfg=darkgrey
+    ```
+
 ## Sourcing & Tracking
 
 The best part about Sourcery is the sourcing & tracking. Sourcery really isn't sorcery, it's just good old fashioned Sourcery. Let's take a look at what `sourcery#init()` does out-of-the-box:

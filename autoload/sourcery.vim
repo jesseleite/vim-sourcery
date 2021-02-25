@@ -138,9 +138,18 @@ endif
 " # Annotation Configuration
 " ------------------------------------------------------------------------------
 
-" Define annotation regex (currently supporting only Config and Mappings annotations)
+" Define indexable annotation types
+if exists('g:sourcery#annotation_types') == 0
+  let g:sourcery#annotation_types = [
+    \ 'Mappings',
+    \ 'Config',
+    \ ]
+endif
+
+" Define annotation regex
 if exists('g:sourcery#annotation_regex') == 0
-  let g:sourcery#annotation_regex = escape("^\\s*%([\"-]+\\s*)*(Config|Mappings):\\s*(\\S*)", "(|)%+")
+  let types = join(g:sourcery#annotation_types, '|')
+  let g:sourcery#annotation_regex = escape("^\\s*%([\"-]+\\s*)*(" . types . "):\\s*(\\S*)", "(|)%+")
 endif
 
 
@@ -427,11 +436,16 @@ endfunction
 " # Jumping
 " ------------------------------------------------------------------------------
 
-" Go to related mappings
-function! sourcery#go_to_related_mappings()
+" Go to related annotation type
+function! sourcery#go_to_related_annotation(type)
   call s:ensure_index()
   let ref = s:get_ref()
-  call s:go_to_annotation('mappings')
+  call s:go_to_annotation(a:type)
+endfunction
+
+" Go to related mappings
+function! sourcery#go_to_related_mappings()
+  call sourcery#go_to_related_annotation('Mappings')
 endfunction
 
 " Go to related config
