@@ -412,7 +412,7 @@ function! s:get_files_from_paths(paths)
   let files = []
   for file in a:paths
     if isdirectory(file)
-      let files = files + globpath(file, '**', 0, 1)
+      let files = files + globpath(file, '**/*.*', 0, 1)
     else
       if filereadable(file)
         call add(files, file)
