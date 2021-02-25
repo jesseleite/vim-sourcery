@@ -155,10 +155,20 @@ function! sourcery#source_and_track_paths()
   endfor
   call s:index_disabled_plugins()
   for file in s:get_files_from_paths(g:sourcery#sourced_paths)
-    if s:should_source_file(file)
+    if s:should_source_file_by_extension(file, 'vim')
       execute 'source' file
+    elseif s:should_source_file_by_extension(file, 'lua') && has('nvim')
+      execute 'luafile' file
     endif
   endfor
+endfunction
+
+function! s:should_source_file_by_extension(file, extension)
+  let extension = fnamemodify(a:file, ':e')
+  if extension != a:extension
+    return 0
+  endif
+  return s:should_source_file(a:file)
 endfunction
 
 function! s:should_source_file(file)
@@ -319,6 +329,7 @@ function! s:autocmd_paths()
   for path in g:sourcery#tracked_paths
     if isdirectory(path)
       call add(autocmd_paths, path . '/*.vim')
+      call add(autocmd_paths, path . '/*.lua')
     else
       call add(autocmd_paths, path)
     endif
