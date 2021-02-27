@@ -1,9 +1,3 @@
-## Warning!
-
-__*This package is still in early development, there may be bugs!*__ 💥 💥 💥
-
----
-
 # Vim Sourcery 🧙‍♂️
 
 A Vim plugin to help users organize and navigate their `.vimrc` / `init.vim` configs.
@@ -51,7 +45,7 @@ Most Vim users start out with a single `.vimrc` / `init.vim` file. As that file 
 
 ## Video Demonstration
 
-Coming soon!
+[![thumbnail-play-icon-320x180](https://user-images.githubusercontent.com/5187394/109403315-785ed400-792a-11eb-8618-2b150b1bcc11.png)](https://youtu.be/_LZAflGsPuI)
 
 ## Installation
 
@@ -299,6 +293,6 @@ sourcery#system_vimfiles_path('plugin/sushi.vim')
 
 The best part about Sourcery is what is not yet finished:
 
-- Record quick video demo
+- Record advanced features video demo
 - Write proper vim help file
 - Order pizza
