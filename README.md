@@ -68,7 +68,7 @@ Coming soon!
 4. Initialize Sourcery after you source your plugins.
 
     ```vim
-    call plug#begin('~/.vim/plugged')
+    call plug#begin()
       source ~/.dotfiles/vim/plugins.vim
     call plug#end()
 
