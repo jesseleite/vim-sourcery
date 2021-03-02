@@ -411,6 +411,12 @@ function! s:index_matching_lines(file, regex, type)
   return index
 endfunction
 
+function! s:filter_index_by_path(index, path_regex)
+  let index = copy(a:index)
+  let matches = filter(index, "match(v:val['file'], a:path_regex) >= 0")
+  return matches
+endfunction
+
 function! s:merge_plugin_bindings()
   for [key, value] in items(g:sourcery#explicit_plugin_bindings)
     let s:plugin_bindings[key] = value
@@ -437,10 +443,10 @@ endfunction
 " ------------------------------------------------------------------------------
 
 " Go to related annotation type
-function! sourcery#go_to_related_annotation(type)
+function! sourcery#go_to_related_annotation(type, ...)
+  let path_regex = a:0 ? a:1 : '.*'
   call s:ensure_index()
-  let ref = s:get_ref()
-  call s:go_to_annotation(a:type)
+  call s:go_to_annotation(a:type, path_regex)
 endfunction
 
 " Go to related mappings
@@ -489,11 +495,12 @@ function! sourcery#go_to_related_plugin_definition()
   silent execute 'edit +' . match['line_number'] match['file']
 endfunction
 
-function! s:go_to_annotation(type)
+function! s:go_to_annotation(type, path_regex)
   let error = 'Cannot find ' . a:type . '.'
   let ref = s:get_ref()
   let handle = ref['handle']
-  let matches = filter(copy(s:annotations_index), "v:val['type'] == '" . a:type . "' && v:val['handle'] == '" . handle . "'")
+  let index = s:filter_index_by_path(s:annotations_index, a:path_regex)
+  let matches = filter(index, "v:val['type'] == '" . a:type . "' && v:val['handle'] == '" . handle . "'")
   if len(matches) > 0
     let match = matches[0]
     silent execute 'edit +' . match['line_number'] match['file']

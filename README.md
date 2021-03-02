@@ -217,6 +217,8 @@ Maybe you want to setup a custom annotation and jump mapping for something other
     endfunction
     ```
 
+    > _**Note:** You may also pass a second path regex argument to scope where Sourcery will look for your annotation._
+
 3. You should now be able to jump to your custom annotation!
 
     ```vim
