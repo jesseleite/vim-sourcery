@@ -459,15 +459,16 @@ function! sourcery#go_to_related(attempt_file_first, annotation_type, ...)
   if successfully_went_to_file == 0
     call s:go_to_annotation(a:annotation_type, path_regex)
   elseif successfully_went_to_file == -1
-    echo 'Cannot find related ' . tolower(a:annotation_type) . '.'
+    let ref = s:get_ref()
+    echo 'Cannot find related ' . tolower(a:annotation_type) . ' for [' . ref['handle'] . '].'
   endif
 endfunction
 
 " Go to related plugin definition
 function! sourcery#go_to_related_plugin_definition()
   call s:ensure_index()
-  let error = 'Cannot find related plugin definition.'
   let ref = s:get_ref()
+  let error = 'Cannot find related plugin definition for [' . ref['handle'] . '].'
   let flipped_bindings = s:flipped_plugin_bindings()
   if has_key(flipped_bindings, ref['handle'])
     let plugin = flipped_bindings[ref['handle']]
@@ -507,8 +508,8 @@ function! s:go_to_file(...)
 endfunction
 
 function! s:go_to_annotation(type, path_regex)
-  let error = 'Cannot find related ' . tolower(a:type) . '.'
   let ref = s:get_ref()
+  let error = 'Cannot find related ' . tolower(a:type) . ' for [' . ref['handle'] . '].'
   let handle = ref['handle']
   let index = s:filter_index_by_path(s:annotations_index, a:path_regex)
   let matches = filter(index, "v:val['type'] == '" . a:type . "' && v:val['handle'] == '" . handle . "'")
