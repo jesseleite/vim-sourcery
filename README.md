@@ -293,5 +293,6 @@ sourcery#system_vimfiles_path('plugin/sushi.vim')
 The best part about Sourcery is what is not yet finished:
 
 - Record better video
+- If there are multiple matching files or annotations, cycle between them
 - Write proper vim help file
 - Order pizza
