@@ -437,46 +437,36 @@ function! s:get_files_from_paths(paths)
   return files
 endfunction
 
+function! s:filter_files_by_path(files, path_regex)
+  let files = copy(a:files)
+  let matches = filter(files, "match(v:val, a:path_regex) >= 0")
+  return matches
+endfunction
+
 
 " ------------------------------------------------------------------------------
 " # Jumping
 " ------------------------------------------------------------------------------
 
-" Go to related annotation type
-function! sourcery#go_to_related_annotation(type, ...)
+" Go to related files and/or anotation type
+function! sourcery#go_to_related(attempt_file_first, annotation_type, ...)
+  call s:ensure_index()
   let path_regex = a:0 ? a:1 : '.*'
-  call s:ensure_index()
-  call s:go_to_annotation(a:type, path_regex)
-endfunction
-
-" Go to related mappings
-function! sourcery#go_to_related_mappings()
-  call sourcery#go_to_related_annotation('Mappings')
-endfunction
-
-" Go to related config
-function! sourcery#go_to_related_config()
-  call s:ensure_index()
-  let ref = s:get_ref()
-  let config_files = {}
-  if ref['handle'] == expand('%:t:r') && ref['type'] == 'config'
-    echo 'Cannot find config.'
-    return
+  let successfully_went_to_file = 0
+  if a:attempt_file_first
+    let successfully_went_to_file = s:go_to_file(path_regex)
   endif
-  for file in s:get_files_from_paths(g:sourcery#tracked_paths)
-    let config_files[fnamemodify(file, ':t:r')] = file
-  endfor
-  if has_key(config_files, ref['handle']) && filereadable(config_files[ref['handle']])
-    silent execute 'edit' config_files[ref['handle']]
-  else
-    call s:go_to_annotation('config')
+  if successfully_went_to_file == 0
+    call s:go_to_annotation(a:annotation_type, path_regex)
+  elseif successfully_went_to_file == -1
+    echo 'Cannot find related ' . tolower(a:annotation_type) . '.'
   endif
 endfunction
 
 " Go to related plugin definition
 function! sourcery#go_to_related_plugin_definition()
   call s:ensure_index()
-  let error = 'Cannot find plugin definition.'
+  let error = 'Cannot find related plugin definition.'
   let ref = s:get_ref()
   let flipped_bindings = s:flipped_plugin_bindings()
   if has_key(flipped_bindings, ref['handle'])
@@ -492,17 +482,39 @@ function! sourcery#go_to_related_plugin_definition()
     echo error
     return
   endif
+  echo ''
   silent execute 'edit +' . match['line_number'] match['file']
 endfunction
 
+function! s:go_to_file(...)
+  call s:ensure_index()
+  let path_regex = a:0 ? a:1 : '.*'
+  let ref = s:get_ref()
+  let tracked_files = {}
+  if ref['handle'] == expand('%:t:r') && ref['type'] == 'config'
+    return -1
+  endif
+  let files = s:filter_files_by_path(s:get_files_from_paths(g:sourcery#tracked_paths), path_regex)
+  for file in files
+    let tracked_files[fnamemodify(file, ':t:r')] = file
+  endfor
+  if has_key(tracked_files, ref['handle']) && filereadable(tracked_files[ref['handle']])
+    echo ''
+    silent execute 'edit' tracked_files[ref['handle']]
+    return 1
+  endif
+  return 0
+endfunction
+
 function! s:go_to_annotation(type, path_regex)
-  let error = 'Cannot find ' . a:type . '.'
+  let error = 'Cannot find related ' . tolower(a:type) . '.'
   let ref = s:get_ref()
   let handle = ref['handle']
   let index = s:filter_index_by_path(s:annotations_index, a:path_regex)
   let matches = filter(index, "v:val['type'] == '" . a:type . "' && v:val['handle'] == '" . handle . "'")
   if len(matches) > 0
     let match = matches[0]
+    echo ''
     silent execute 'edit +' . match['line_number'] match['file']
   else
     echo error

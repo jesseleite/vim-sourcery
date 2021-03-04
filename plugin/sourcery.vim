@@ -1,9 +1,9 @@
 " Commands
 command!                SourceryScaffold                     call sourcery#scaffold()
 command!                SourceryGoToRelatedPluginDefinition  call sourcery#go_to_related_plugin_definition()
-command!                SourceryGoToRelatedMappings          call sourcery#go_to_related_mappings()
-command!                SourceryGoToRelatedConfig            call sourcery#go_to_related_config()
-command! -nargs=*       SourceryGoToRelatedAnnotation        call sourcery#go_to_related_annotation(<f-args>)
+command!                SourceryGoToRelatedMappings          call sourcery#go_to_related(0, 'Mappings')
+command!                SourceryGoToRelatedConfig            call sourcery#go_to_related(1, 'Config')
+command! -bang -nargs=+ SourceryGoToRelatedAnnotation        call sourcery#go_to_related(<bang>0, <f-args>)
 command! -bang          SourceryDebug                        call sourcery#debug(<bang>0)
 
 " Mappings

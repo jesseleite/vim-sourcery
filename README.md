@@ -211,13 +211,10 @@ Maybe you want to setup a custom annotation and jump mapping for something other
 2. Add a mapping for jumping to your new annotation to your `SourceryMappings()` function:
 
     ```vim
-    function! SourceryMappings()
-      " ...
-      nmap <silent><buffer> gh :SourceryGoToRelatedAnnotation Highlights<CR>
-    endfunction
+    nmap <silent><buffer> gh :SourceryGoToRelatedAnnotation Highlights<CR>
     ```
 
-    > _**Note:** You may also pass a second path regex argument to scope where Sourcery will look for your annotation._
+    > _**Note:** If you call this command with a `!` bang modifier, Sourcery will attempt to find a related file before looking for a related annotation, similar to how Sourcery handles going to related config files and annotations. You may also pass a second path regex argument to scope where Sourcery will look for your file and/or annotation._
 
 3. You should now be able to jump to your custom annotation!
 
@@ -295,6 +292,6 @@ sourcery#system_vimfiles_path('plugin/sushi.vim')
 
 The best part about Sourcery is what is not yet finished:
 
-- Record advanced features video demo
+- Record better video
 - Write proper vim help file
 - Order pizza
