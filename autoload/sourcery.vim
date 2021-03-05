@@ -67,6 +67,7 @@ if exists('g:sourcery#tracked_paths') == 0
     \ sourcery#system_vimfiles_path('plugin'),
     \ sourcery#system_vimfiles_path('autoload'),
     \ sourcery#system_vimfiles_path('after'),
+    \ sourcery#system_vimfiles_path('lua'),
     \ ]
 endif
 
@@ -177,12 +178,16 @@ function! sourcery#source_and_track_paths()
   endif
   call s:index_disabled_plugins()
   for file in s:get_files_from_paths(g:sourcery#sourced_paths)
-    if s:should_source_file_by_extension(file, 'vim')
-      execute 'source' file
-    elseif s:should_source_file_by_extension(file, 'lua') && has('nvim')
-      execute 'luafile' file
-    endif
+    call s:source_file(file)
   endfor
+endfunction
+
+function! s:source_file(file)
+  if s:should_source_file_by_extension(a:file, 'vim')
+    execute 'source' a:file
+  elseif s:should_source_file_by_extension(a:file, 'lua') && has('nvim')
+    execute 'luafile' a:file
+  endif
 endfunction
 
 function! s:should_source_file_by_extension(file, extension)
@@ -207,10 +212,11 @@ endfunction
 " ------------------------------------------------------------------------------
 
 function! s:re_source()
-  if matchstrpos(expand('%:p'), g:sourcery#system_vimfiles_path)[1] == 0
-    source %
+  let file = expand('%:p')
+  if matchstrpos(file, g:sourcery#system_vimfiles_path)[1] == 0
+    call s:source_file(file)
   endif
-  source $MYVIMRC
+  call s:source_file($MYVIMRC)
   call sourcery#index()
 endfunction
 
