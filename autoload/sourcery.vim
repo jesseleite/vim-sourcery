@@ -14,6 +14,16 @@ endfunction
 " # Pathing Configuration
 " ------------------------------------------------------------------------------
 
+" Disable sourcing on boot
+if exists('g:sourcery#disable_sourcing_on_boot') == 0
+  let g:sourcery#disable_sourcing_on_boot = 0
+endif
+
+" Disable auto-sourcing on save
+if exists('g:sourcery#disable_autosourcing_on_save') == 0
+  let g:sourcery#disable_autosourcing_on_save = 0
+endif
+
 " Define system vimfiles path
 if exists('g:sourcery#system_vimfiles_path') == 0
   if has('nvim')
@@ -162,6 +172,9 @@ function! sourcery#source_and_track_paths()
   for path in g:sourcery#sourced_paths
     call sourcery#track_path(path)
   endfor
+  if g:sourcery#disable_sourcing_on_boot
+    return
+  endif
   call s:index_disabled_plugins()
   for file in s:get_files_from_paths(g:sourcery#sourced_paths)
     if s:should_source_file_by_extension(file, 'vim')
@@ -203,6 +216,9 @@ endfunction
 
 " Register auto-sourcing of vimrc when any tracked configs are saved
 function! sourcery#register_autosourcing()
+  if g:sourcery#disable_autosourcing_on_save
+    return
+  endif
   augroup sourcery_autosource
     autocmd!
     execute 'autocmd BufWritePost' s:autocmd_paths() 'nested call s:re_source()'
