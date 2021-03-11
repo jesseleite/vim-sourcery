@@ -312,6 +312,7 @@ endfunction
 " ------------------------------------------------------------------------------
 
 let s:indexed = 0
+let s:tracked_files_index = []
 let s:annotations_index = []
 let s:plugin_definitions_index = []
 let s:plugin_bindings = {}
@@ -320,11 +321,42 @@ let s:disabled_plugins = []
 function! sourcery#index()
   call s:clear_index()
   for file in s:get_files_from_paths(g:sourcery#tracked_paths)
+    call s:index_file(file)
     call s:index_annotations(file)
     call s:index_plugin_definitions(file)
   endfor
   call s:merge_plugin_bindings()
   let s:indexed = 1
+endfunction
+
+function! sourcery#get_normalized_index()
+  call s:ensure_index()
+  let normalized = []
+  for file in s:indexed_files
+    call add(normalized, {
+      \ 'type': 'File',
+      \ 'file': file,
+      \ 'handle': fnamemodify(file, ':t'),
+      \ 'line_number': 0,
+      \ })
+  endfor
+  for index in s:plugin_definitions_index
+    call add(normalized, {
+      \ 'type': 'Plugin Definition',
+      \ 'file': index['file'],
+      \ 'handle': s:plugin_bindings[index['plugin']],
+      \ 'line_number': index['line_number'],
+      \ })
+  endfor
+  for index in s:annotations_index
+    call add(normalized, {
+      \ 'type': substitute(index['type'], '^.', '\u&', ''),
+      \ 'file': index['file'],
+      \ 'handle': index['handle'],
+      \ 'line_number': index['line_number'],
+      \ })
+  endfor
+  return normalized
 endfunction
 
 function! s:ensure_index()
@@ -336,9 +368,11 @@ endfunction
 
 function! s:clear_index()
   let s:indexed = 0
+  let s:indexed_files = []
   let s:annotations_index = []
   let s:plugin_definitions_index = []
   let s:plugin_bindings = {}
+  let s:disabled_plugins = []
 endfunction
 
 function! s:index_disabled_plugins()
@@ -375,6 +409,13 @@ function! s:flipped_plugin_bindings()
     let flipped[value] = key
   endfor
   return flipped
+endfunction
+
+function! s:index_file(file)
+  let resolved = resolve(a:file)
+  if index(s:indexed_files, resolved) == -1 
+    call add(s:indexed_files, resolved)
+  endif
 endfunction
 
 function! s:index_annotations(file)

@@ -7,6 +7,7 @@ A Vim plugin to help users organize and navigate their `.vimrc` / `init.vim` con
 - [Installation](#installation)
 - [File Structure Conventions](#file-structure-conventions)
 - [Jumping Between Files](#jumping-between-files)
+- [Telescope Finder](#telescope-finder)
 - [Sourcing & Tracking](#sourcing--tracking)
 - [Auto-Sourcing](#auto-sourcing)
 - [Path Helpers](#path-helpers)
@@ -229,6 +230,18 @@ Maybe you want to setup a custom annotation and jump mapping for something other
     highlight FzfHl ctermfg=blue
     highlight FzfBorder ctermfg=darkgrey
     ```
+
+## Telescope Finder
+
+The best part about Sourcery is the [Telescope](https://github.com/nvim-telescope/telescope.nvim) finder. This lets you magically fuzzy find any of your vim config files or [annotations](#mappings-annotations) from any project. Assuming you have Telescope installed:
+
+1. Load the sourcery extension:
+
+    ```lua
+    require('telescope').load_extension('sourcery')
+    ```
+
+2. Open the sourcery finder `:Telescope sourcery`!
 
 ## Sourcing & Tracking
 
