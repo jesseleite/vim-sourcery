@@ -45,6 +45,10 @@ Most Vim users start out with a single `.vimrc` / `init.vim` file. As that file 
 
 ## Video Demonstration
 
+> Less boring video incoming 😴
+
+> But until then...
+
 [![thumbnail-play-icon-320x180](https://user-images.githubusercontent.com/5187394/109403315-785ed400-792a-11eb-8618-2b150b1bcc11.png)](https://youtu.be/_LZAflGsPuI)
 
 ## Installation
@@ -292,7 +296,8 @@ sourcery#system_vimfiles_path('plugin/sushi.vim')
 
 The best part about Sourcery is what is not yet finished:
 
-- Record better video
+- Record less boring video
 - If there are multiple matching files or annotations, cycle between them
+- Support packer.nvim
 - Write proper vim help file
 - Order pizza
