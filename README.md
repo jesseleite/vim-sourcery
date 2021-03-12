@@ -101,7 +101,8 @@ The first is based on your standard system vimfiles path. Depending on your OS a
 ├── mappings.vim           // A mappings file will be sourced & tracked
 ├── plugin                 // All files within the following folders will be tracked as well
 ├── autoload
-└── after
+├── after
+└── lua
 ```
 
 > _**Tip:** This is what is sourced and tracked by default. Feel free to delete `plugins.vim` and/or `mappings.vim` if you prefer to organize that stuff in a different location. You may also [source & track as many extra paths](#sourcing--tracking) as you see fit. The world is your oyster!_
@@ -119,8 +120,7 @@ If you prefer a more custom config structure in an external location, a common p
     └── config             // All files within this folder will be sourced & tracked as well
         ├── sanity.vim
         ├── theme.vim
-        ├── fugitive.vim
-        └── fzf.vim
+        └── telescope.lua
 ```
 
 Sourcery should be able to follow the `.vimrc` / `init.vim` symlink to find your vim dotfiles, but you can explicitly define the path by setting the following before your call to `sourcery#init()`:
@@ -144,48 +144,48 @@ The best part about Sourcery is the jump mappings. These let you jump between re
 Plugins sourced via `packadd`, [vim-plug](https://github.com/junegunn/vim-plug), and [vundle.vim](https://github.com/VundleVim/Vundle.vim) are supported and indexed out-of-the-box:
 
 ```vim
-Plug 'junegunn/fzf.vim'
+Plug 'nvim-telescope/telescope.nvim'
 ```
 
 By default, Sourcery will take the last segment of the plugin repository or path and use that as the handle. It will also ignore common prefixes and suffixes (`vim-`, `nvim-`, `-vim`, `-nvim`, `.vim`, `.nvim`) to create a cleaner handle.
 
-In the above example, `fzf` will be the handle we'll need to use for our jump point annotations. If you want to customize a handle, you can explicitly set a plugin annotation binding:
+In the above example, `telescope` will be the handle we'll need to use for our jump point annotations. If you want to customize a handle, you can explicitly set a plugin annotation binding:
 
 ```vim
 let g:sourcery#explicit_plugin_bindings = {
-  \ 'junegunn/fzf.vim': 'some-other-handle',
+  \ 'nvim-telescope/telescope.nvim': 'telescopic-johnson',
   \ }
 ```
 
 ### Mappings Annotations
 
-Let's say you have a set of related mappings for a plugin like [fzf.vim](https://github.com/junegunn/fzf.vim). To setup a jump point to a related set of mappings, add the `" Mappings: <handle>` annotation above those mappings:
+Let's say you have a set of related mappings for a plugin like [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim). To setup a jump point to a related set of mappings, add the `" Mappings: <handle>` annotation above those mappings:
 
 ```vim
-" Mappings: fzf
-nmap <Leader>f :GFiles<CR>
-nmap <Leader>F :Files<CR>
-nmap <Leader>h :History<CR>
-nmap <Leader>H :Helptags<CR>
+" Mappings: telescope
+nmap <Leader>f :Telescope find_files<CR>
+nmap <Leader>/ :Telescope live_grep<CR>
+nmap <Leader>b :Telescope buffers<CR>
+nmap <Leader>h :Telescope help_tags<CR>
 ```
 
-> _**Note:** If within a .lua file, you can use a lua comment like `-- Mappings: fzf` to annotate mappings._
+> _**Note:** If within a .lua file, you can use a lua comment like `-- Mappings: telescope` to annotate mappings._
 
 ### Config Annotations:
 
 The same applies for a related set of config and/or settings. To setup a jump point to a related set of config, add the `" Config: <handle>` annotation above that config:
 
 ```vim
-" Config: fzf
-let g:fzf_history_dir = '~/.vim/fzf_history'
-let g:fzf_preview_window = 'right:50%:noborder:hidden'
+" Config: sourcery
+let g:sourcery#disable_sourcing_on_boot = 0
+let g:sourcery#disable_autosourcing_on_save = 0
 ```
 
-> _**Note:** If within a .lua file, you can use a lua comment like `-- Config: fzf` to annotate config._
+> _**Note:** If within a .lua file, you can use a lua comment like `-- Config: sourcery` to annotate config._
 
 ### Dedicated Config Files:
 
-If you have a lot of config for a specific thing, you can create a separate `<handle>.vim` or `<handle>.lua` config file in the `plugin` or `config` directory (depending on your chosen [file structure](#file-structure-conventions)). For our fzf plugin examples above, we would create an `fzf.vim` config file for all of our fzf-related config and settings.
+If you have a lot of config for a specific thing, you can create a separate `<handle>.vim` or `<handle>.lua` config file in any of your [sourced](#sourcing) or [tracked](#tracking) directories.
 
 ### Jump Mappings
 
@@ -224,11 +224,11 @@ Maybe you want to setup a custom annotation and jump mapping for something other
 3. You should now be able to jump to your custom annotation!
 
     ```vim
-    " Highlights: fzf
-    highlight FzfFg ctermfg=white
-    highlight FzfBg ctermbg=none
-    highlight FzfHl ctermfg=blue
-    highlight FzfBorder ctermfg=darkgrey
+    " Highlights: telescope
+    highlight TelescopeBorder ctermfg=darkgrey
+    highlight TelescopePromptBorder ctermfg=darkgrey
+    highlight TelescopeResultsBorder ctermfg=darkgrey
+    highlight TelescopePreviewBorder ctermfg=darkgrey
     ```
 
 ## Telescope Finder
