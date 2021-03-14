@@ -24,7 +24,7 @@ local sourcery = function(opts)
                 return {
                     value = entry,
                     display = entry.type .. ': ' .. entry.handle .. ' --- ' .. relative_path(entry.file) .. ':' .. entry.line_number,
-                    ordinal = entry.type .. entry.handle,
+                    ordinal = entry.type .. entry.handle .. entry.file,
                     filename = entry.file,
                     lnum = entry.line_number,
                     col = 0,
