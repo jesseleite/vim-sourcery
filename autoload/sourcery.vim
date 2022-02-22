@@ -96,6 +96,19 @@ function! sourcery#source_path(path)
   endif
 endfunction
 
+" Define paths for deferring sourcing
+if exists('g:sourcery#deferred_source_paths') == 0
+  let g:sourcery#deferred_source_paths = []
+endif
+
+" Defer sourcing of a path to ensure it gets sourced at the end
+function! sourcery#source_defer(path)
+  let path = sourcery#vim_dotfiles_path(a:path)
+  if index(g:sourcery#deferred_source_paths, path) < 0
+    call add(g:sourcery#deferred_source_paths, path)
+  endif
+endfunction
+
 
 " ------------------------------------------------------------------------------
 " # Plugin Configuration
@@ -173,11 +186,17 @@ function! sourcery#source_and_track_paths()
   for path in g:sourcery#sourced_paths
     call sourcery#track_path(path)
   endfor
+  for path in g:sourcery#deferred_source_paths
+    call sourcery#track_path(path)
+  endfor
   if g:sourcery#disable_sourcing_on_boot
     return
   endif
   call s:index_disabled_plugins()
-  for file in s:get_files_from_paths(g:sourcery#sourced_paths)
+  for file in filter(s:get_files_from_paths(g:sourcery#sourced_paths), "index(g:sourcery#deferred_source_paths, v:val) < 0")
+    call s:source_file(file)
+  endfor
+  for file in s:get_files_from_paths(g:sourcery#deferred_source_paths)
     call s:source_file(file)
   endfor
 endfunction
@@ -413,7 +432,7 @@ endfunction
 
 function! s:index_file(file)
   let resolved = resolve(a:file)
-  if index(s:indexed_files, resolved) == -1 
+  if index(s:indexed_files, resolved) == -1
     call add(s:indexed_files, resolved)
   endif
 endfunction
@@ -636,7 +655,10 @@ endfunction
 function! s:debug_tracked_files(verbose)
   echo "\nTracked Files:\n---"
   let sourced_files = s:get_files_from_paths(g:sourcery#sourced_paths)
+  let deferred_files = s:get_files_from_paths(g:sourcery#deferred_source_paths)
+  let sourced_and_deferred_files = []
   for file in s:get_files_from_paths(g:sourcery#tracked_paths)
+    let sourced_and_deferred = index(sourced_files, file) >= 0 && index(deferred_files, file) >= 0
     let sourced = index(sourced_files, file) >= 0
     let nvim_only = fnamemodify(file, ':e') == 'lua' && !has('nvim')
     let disabled = s:should_source_file(file) == 0
@@ -645,10 +667,16 @@ function! s:debug_tracked_files(verbose)
       let status = '--- DISABLED (lua not supported)'
     elseif disabled
       let status = '--- DISABLED'
+    elseif sourced_and_deferred
+      call add(sourced_and_deferred_files, file)
+      break
     elseif sourced
       let status = '--- sourced'
     endif
     echo file status
+  endfor
+  for file in sourced_and_deferred_files
+    echo file '--- sourced (deferred)'
   endfor
 endfunction
 

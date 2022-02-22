@@ -266,6 +266,15 @@ call sourcery#init()
 
 > _**Note:** You can pass both absolute and relative paths to `sourcery#source_path()`._
 
+### Deferred Sourcing
+
+You may find yourself in a situation where a whole folder is being sourced (ie. the `config` folder, which is sourced by default), but you need to defer the sourcing of a specific file until the end to ensure everything is loaded in the correct order. In these situations, you can defer the sourcing of a specific file:
+
+```vim
+call sourcery#source_defer('config/highlights.vim')
+call sourcery#init()
+```
+
 ### Tracking
 
 When files are sourced, they are also tracked for Sourcery's [jump mappings](#jumping-between-files) and [auto-sourcing](#auto-sourcing). If you don't want Sourcery to handle the sourcing of a file or folder, it is recommended you still track it before initializing Sourcery:
