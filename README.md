@@ -127,6 +127,7 @@ Sourcery should be able to follow the `.vimrc` / `init.vim` symlink to find your
 
 ```vim
 let g:sourcery#vim_dotfiles_path = '~/.dotfiles/vim'
+call sourcery#init()
 ```
 
 > _**Tip:** Again, you may customize the above structure however you see fit! Just be sure to [source & track any custom paths](#sourcing--tracking) you wish to configure._
