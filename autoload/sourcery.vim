@@ -181,6 +181,8 @@ endif
 " # Sourcing
 " ------------------------------------------------------------------------------
 
+let s:sourced_files = []
+
 " Source and track all configured paths
 function! sourcery#source_and_track_paths()
   for path in g:sourcery#sourced_paths
@@ -204,8 +206,10 @@ endfunction
 function! s:source_file(file)
   if s:should_source_file_by_extension(a:file, 'vim')
     execute 'source' a:file
+    call add(s:sourced_files, a:file)
   elseif s:should_source_file_by_extension(a:file, 'lua') && has('nvim')
     execute 'luafile' a:file
+    call add(s:sourced_files, a:file)
   endif
 endfunction
 
@@ -647,13 +651,21 @@ endfunction
 
 function! sourcery#debug(verbose)
   call s:ensure_index()
-  call s:debug_tracked_files(a:verbose)
+  call s:debug_sourced_files(a:verbose)
+  " call s:debug_tracked_files(a:verbose)
   call s:debug_indexed_plugins(a:verbose)
   call s:debug_indexed_annotations(a:verbose)
 endfunction
 
+function! s:debug_sourced_files(verbose)
+  echo "\nSourced Files:\n---"
+  for file in s:sourced_files
+    echo file
+  endfor
+endfunction
+
 function! s:debug_tracked_files(verbose)
-  echo "\nTracked Files:\n---"
+  echo "\nTracked Files (DEPRECATED):\n---"
   let sourced_files = s:get_files_from_paths(g:sourcery#sourced_paths)
   let deferred_files = s:get_files_from_paths(g:sourcery#deferred_source_paths)
   let sourced_and_deferred_files = []
