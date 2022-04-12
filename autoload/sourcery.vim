@@ -181,7 +181,9 @@ endif
 " # Sourcing
 " ------------------------------------------------------------------------------
 
-let s:sourced_files = []
+let s:sourced_files = [
+  \ $MYVIMRC
+  \ ]
 
 " Source and track all configured paths
 function! sourcery#source_and_track_paths()
@@ -206,10 +208,15 @@ endfunction
 function! s:source_file(file)
   if s:should_source_file_by_extension(a:file, 'vim')
     execute 'source' a:file
-    call add(s:sourced_files, a:file)
+    if index(s:sourced_files, a:file) < 0
+      call add(s:sourced_files, a:file)
+    endif
   elseif s:should_source_file_by_extension(a:file, 'lua') && has('nvim')
+    " Should be able to remove this soon, as you can now `:source` lua files in neovim
     execute 'luafile' a:file
-    call add(s:sourced_files, a:file)
+    if index(s:sourced_files, a:file) < 0
+      call add(s:sourced_files, a:file)
+    endif
   endif
 endfunction
 
@@ -236,9 +243,6 @@ endfunction
 
 function! s:re_source()
   let file = expand('%:p')
-  if matchstrpos(file, g:sourcery#system_vimfiles_path)[1] == 0
-    call s:source_file(file)
-  endif
   call s:source_file($MYVIMRC)
   call sourcery#index()
 endfunction
