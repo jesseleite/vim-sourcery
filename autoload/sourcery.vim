@@ -83,7 +83,9 @@ endfunction
 if exists('g:sourcery#sourced_paths') == 0
   let g:sourcery#sourced_paths = [
     \ sourcery#vim_dotfiles_path('mappings.vim'),
+    \ sourcery#vim_dotfiles_path('mappings.lua'),
     \ sourcery#vim_dotfiles_path('plugins.vim'),
+    \ sourcery#vim_dotfiles_path('plugins.lua'),
     \ sourcery#vim_dotfiles_path('config'),
     \ ]
 endif
