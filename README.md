@@ -96,16 +96,16 @@ The first is based on your standard system vimfiles path. Depending on your OS a
 
 ```
 ~/.vim
-├── $MYVIMRC               // Your .vimrc / init.vim, wherever it is located
-├── plugins.vim            // A plugin manager definitions file will be sourced & tracked
-├── mappings.vim           // A mappings file will be sourced & tracked
-├── plugin                 // All files within the following folders will be tracked as well
+├── $MYVIMRC                 // Your .vimrc / init.vim, wherever it is located
+├── plugins.vim / .lua       // A plugin manager definitions file will be sourced & tracked
+├── mappings.vim / .lua      // A mappings file will be sourced & tracked
+├── plugin                   // All files within the following folders will be tracked as well
 ├── autoload
 ├── after
 └── lua
 ```
 
-> _**Tip:** This is what is sourced and tracked by default. Feel free to delete `plugins.vim` and/or `mappings.vim` if you prefer to organize that stuff in a different location. You may also [source & track as many extra paths](#sourcing--tracking) as you see fit. The world is your oyster!_
+> _**Tip:** This is what is sourced and tracked by default. Feel free to delete `plugins` and/or `mappings` files if you prefer to organize that stuff in a different location. You may also [source & track as many extra paths](#sourcing--tracking) as you see fit. The world is your oyster!_
 
 ### Custom External Location
 
@@ -114,10 +114,11 @@ If you prefer a more custom config structure in an external location, a common p
 ```
 ~/.dotfiles
 └── vim
-    ├── $MYVIMRC           // Symlink your .vimrc / init.vim to this file
-    ├── plugins.vim        // A plugin manager definitions file will be sourced & tracked
-    ├── mappings.vim       // A mappings file will be sourced & tracked
-    └── config             // All files within this folder will be sourced & tracked as well
+    ├── $MYVIMRC             // Symlink your .vimrc / init.vim to this file
+    ├── plugins.vim / .lua   // A plugin manager definitions file will be sourced & tracked
+    ├── mappings.vim / .lua  // A mappings file will be sourced & tracked
+    └── config               // All files within this folder will be sourced & tracked as well
+        ├── harpoon.lua
         ├── sanity.vim
         ├── theme.vim
         └── telescope.lua
@@ -252,9 +253,9 @@ The best part about Sourcery is the sourcing & tracking. Sourcery really isn't s
 
 By default, Vim will automatically source your `.vimrc` / `init.vim` (wherever it is located, see `:help vimrc`), as well as files within `autoload`, `plugin`, `after`, etc. within your system vimfiles directory (see `:help vimfiles`).
 
-On top of the files Vim sources for you, Sourcery will also source `plugins.vim` and `mappings.vim` files, and if you've chosen an external dotfiles repo (see [file structure conventions](#file-structure-conventions)), any files added to a `config` folder will also be sourced.
+On top of the files Vim sources for you, Sourcery will also source `plugins` and `mappings` files, and if you've chosen an external dotfiles repo (see [file structure conventions](#file-structure-conventions)), any files added to a `config` folder will also be sourced.
 
-> _**Note:** The `plugins.vim`, `mappings.vim`, and `config` paths are totally optional. Feel free to delete them if they don't suit your fancy!_
+> _**Note:** The `plugins`, `mappings`, and `config` paths are totally optional. Feel free to delete them if they don't suit your fancy!_
 
 If you have extra `*.vim` / `*.lua` files or folders you wish to source, you can source them before you initialize Sourcery:
 
