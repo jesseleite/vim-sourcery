@@ -1,3 +1,15 @@
+> _**Dear User,**_ ❤️
+>
+>_Though this plugin may be helpful if you're still using [Bramvim](https://www.vim.org/), I have found it to be less useful since switching to [lazy.nvim](https://github.com/folke/lazy.nvim) for [Neovim](https://neovim.io/), and no longer use vim-sourcery myself. If you're interested in taking over maintenance of vim-sourcery, [hit me up](https://jesseleite.com/)! Otherwise, please consider this plugin 'deprecated'_ 😅
+>
+>_**Why?** ...[Lazy.nvim](https://github.com/folke/lazy.nvim) solves a lot of what this plugin was trying to accomplish by encouraging a file-per-plugin approach to keep all of a plugin's config in one spot. It provides hooks to control loading and initialization, mappings, config, etc. It's really nice, you should check it out!_ 🔥
+>
+>_**What now?** ...If you want to learn more about how one may structure a modern lua-based Neovim config, you can find my current [neovim config here](https://github.com/jesseleite/dotfiles/tree/master/nvim), or follow for progress on my upcoming [course here](https://vimfornormalpeople.com/)_ 💘
+>
+>_- Jesse_
+
+---
+
 # Vim Sourcery 🧙‍♂️
 
 A Vim plugin to help users organize and navigate their `.vimrc` / `init.vim` configs.
