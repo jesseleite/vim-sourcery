@@ -15,7 +15,6 @@
 A Vim plugin to help users organize and navigate their `.vimrc` / `init.vim` configs.
 
 - [Rationale](#rationale)
-- [Video Demonstration](#video-demonstration)
 - [Installation](#installation)
 - [File Structure Conventions](#file-structure-conventions)
 - [Jumping Between Files](#jumping-between-files)
@@ -55,14 +54,6 @@ Most Vim users start out with a single `.vimrc` / `init.vim` file. As that file 
 | 💚 | Every new file is automatically sourced |
 | 💚 | Conventional structure makes it easy to manage as your config grows |
 | 💚 | Easily jump between related plugin definitions, mappings, and configs |
-
-## Video Demonstration
-
-> Less boring video incoming 😴
-
-> But until then...
-
-[![thumbnail-play-icon-320x180](https://user-images.githubusercontent.com/5187394/109403315-785ed400-792a-11eb-8618-2b150b1bcc11.png)](https://youtu.be/_LZAflGsPuI)
 
 ## Installation
 
